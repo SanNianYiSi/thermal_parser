@@ -39,7 +39,7 @@ class TestThermal(unittest.TestCase):
         thermal = TestThermal.get_thermal()
         assert thermal is not None
 
-    def test_parser(self):
+    def test_parse(self):
         thermal = TestThermal.get_thermal()
         for image_filename in [
             'images/DJI_H20T.jpg',
@@ -56,7 +56,15 @@ class TestThermal(unittest.TestCase):
             assert isinstance(temperature, np.ndarray)
 
     def test_parse_flir(self):
-        pass
+        thermal = TestThermal.get_thermal()
+        for image_filename in [
+            'images/FLIR.jpg',
+            'images/FLIR_AX8.jpg',
+            'images/FLIR_E40.jpg',
+            'images/FLIR_T640.jpg',
+        ]:
+            temperature = thermal.parse_flir(image_filename=image_filename)
+            assert isinstance(temperature, np.ndarray)
 
     def test_parse_dirp2(self):
         thermal = TestThermal.get_thermal()
