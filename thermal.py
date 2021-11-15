@@ -341,6 +341,7 @@ class Thermal:
     FLIR_E40 = 'FLIR E40'
     FLIR_T640 = 'FLIR T640'
     FLIR = 'FLIR'
+    FLIR_DEFAULT = '*'
     FLIR_AX8 = 'FLIR AX8'
 
     # dirp_ret_code_e
@@ -396,15 +397,19 @@ class Thermal:
         self._support_camera_model = {
             Thermal.DJI_XT2, Thermal.DJI_ZH20T, Thermal.DJI_XTS, Thermal.DJI_XTR,
             Thermal.FLIR_B60, Thermal.FLIR_E40, Thermal.FLIR_T640,
-            Thermal.FLIR, Thermal.FLIR_AX8,
+            Thermal.FLIR, Thermal.FLIR_DEFAULT, Thermal.FLIR_AX8,
         }
         if 'win' in sys.platform:
             assert isinstance(exif_filename, str)
-            self._exiftool_filename = exif_filename
+            current_abs_dirname = path.dirname(os.path.abspath(__file__))
+            self._exiftool_filename = path.join(current_abs_dirname, exif_filename)
             assert path.exists(self._exiftool_filename)
-        else:
+        elif 'linux' in sys.platform:
             # TODO: check install
             self._exiftool_filename = 'exiftool'
+        else:
+            raise NotImplementedError(
+                'Operating system not supported. Current Operation system is {}'.format(sys.platform))
 
         try:
             self._thermal_dll = CDLL(self._dji_sdk_filename)
@@ -475,23 +480,28 @@ class Thermal:
             image_filename: str,
     ) -> np.ndarray:
         assert isinstance(image_filename, str) and path.exists(image_filename), image_filename
-        cmd = '{} {}'.format(self._exiftool_filename, image_filename)
-        meta = subprocess.Popen(
-            cmd,
-            shell=True,
-            close_fds=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        ).communicate()[0]
+        # meta = subprocess.Popen(
+        #     '{} {}'.format(self._exiftool_filename, image_filename),
+        #     shell=True,
+        #     close_fds=True,
+        #     stdout=subprocess.PIPE,
+        #     stderr=subprocess.PIPE,
+        # ).communicate()[0]
+        meta = subprocess.Popen([self._exiftool_filename, image_filename], stdout=subprocess.PIPE).communicate()[0]
         meta = meta.decode('utf8').replace('\r', '')
         meta_json = dict([
             (field.split(':')[0].strip(), field.split(':')[1].strip()) for field in meta.split('\n') if ':' in field
         ])
-        assert 'Camera Model Name' in meta_json
+        if 'Camera Model Name' not in meta_json:
+            raise ValueError('{} `Camera Model Name` field is missing'.format(image_filename))
         camera_model = meta_json['Camera Model Name']
-        assert camera_model in self._support_camera_model or Thermal.FLIR in camera_model
+        try:
+            assert camera_model in self._support_camera_model or Thermal.FLIR in camera_model
+        except AssertionError:
+            print(image_filename)
         if camera_model in {
             Thermal.FLIR,
+            Thermal.FLIR_DEFAULT,
             Thermal.FLIR_T640,
             Thermal.FLIR_E40,
             Thermal.FLIR_B60,
