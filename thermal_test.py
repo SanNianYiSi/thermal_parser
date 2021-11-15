@@ -1,7 +1,6 @@
 import sys
 import unittest
 import _thread
-import multiprocessing
 
 import numpy as np
 
