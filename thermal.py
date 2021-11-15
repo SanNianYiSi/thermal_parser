@@ -331,6 +331,9 @@ def parse_raw_data(stream: BinaryIO, metadata: Tuple[int, int, int, int]):
     return width, height, thermal_np
 
 
+ABSOLUTE_ZERO = 273.15
+
+
 class Thermal:
     # Camera Model Name
     DJI_XT2 = 'XT2'
@@ -470,7 +473,7 @@ class Thermal:
         self._dirp_measure.restype = c_int32
 
         # Measure temperature of whole thermal image with RAW data in R-JPEG.
-        # Each FLOAT32 pixel value represents the real temperature in Celsius.
+        # Each float32 pixel value represents the real temperature in Celsius.
         self._dirp_measure_ex = self._thermal_dll.dirp_measure_ex
         self._dirp_measure_ex.argtypes = [DIRP_HANDLE, POINTER(c_float), c_int32]
         self._dirp_measure_ex.restype = c_int32
@@ -479,26 +482,33 @@ class Thermal:
             self,
             image_filename: str,
     ) -> np.ndarray:
-        assert isinstance(image_filename, str) and path.exists(image_filename), image_filename
-        # meta = subprocess.Popen(
-        #     '{} {}'.format(self._exiftool_filename, image_filename),
-        #     shell=True,
-        #     close_fds=True,
-        #     stdout=subprocess.PIPE,
-        #     stderr=subprocess.PIPE,
-        # ).communicate()[0]
+        """
+        Parser infrared camera data as `NumPy` data.
+
+        Args:
+            image_filename: str, relative path of R-JPEG image
+
+        Returns:
+            np.ndarray: temperature array
+
+        Raises
+        ------
+            AssertionError
+                * wrong parameter type
+                * R-JPEG file does not exist
+                * field missing
+                * unsupported camera type
+        """
+
+        assert isinstance(image_filename, str) and path.exists(image_filename), 'Check if the file exists:{}.'.format(image_filename)
         meta = subprocess.Popen([self._exiftool_filename, image_filename], stdout=subprocess.PIPE).communicate()[0]
         meta = meta.decode('utf8').replace('\r', '')
         meta_json = dict([
             (field.split(':')[0].strip(), field.split(':')[1].strip()) for field in meta.split('\n') if ':' in field
         ])
-        if 'Camera Model Name' not in meta_json:
-            raise ValueError('{} `Camera Model Name` field is missing'.format(image_filename))
+        assert 'Camera Model Name' in meta_json, '{} `Camera Model Name` field is missing'.format(image_filename)
         camera_model = meta_json['Camera Model Name']
-        try:
-            assert camera_model in self._support_camera_model or Thermal.FLIR in camera_model
-        except AssertionError:
-            print(image_filename)
+        assert camera_model in self._support_camera_model or Thermal.FLIR in camera_model, 'Unsupported camera type:{}'.format(camera_model)
         if camera_model in {
             Thermal.FLIR,
             Thermal.FLIR_DEFAULT,
@@ -509,22 +519,111 @@ class Thermal:
             Thermal.DJI_XT2,
             Thermal.DJI_XTR,
         } or Thermal.FLIR in camera_model:
-            return self.parse_flir(image_filename=image_filename, meta_json=meta_json)
+            kwargs = dict((name, float(meta_json[key])) for name, key in [
+                ('emissivity', 'Emissivity'),
+                ('ir_window_transmission', 'IR Window Transmission'),
+                ('planck_r1', 'Planck R1'),
+                ('planck_b', 'Planck B'),
+                ('planck_f', 'Planck F'),
+                ('planck_o', 'Planck O'),
+                ('planck_r2', 'Planck R2'),
+                ('ata1', 'Atmospheric Trans Alpha 1'),
+                ('ata2', 'Atmospheric Trans Alpha 2'),
+                ('atb1', 'Atmospheric Trans Beta 1'),
+                ('atb2', 'Atmospheric Trans Beta 2'),
+                ('atx', 'Atmospheric Trans X'),
+            ] if key in meta_json)
+            for name, key in [
+                ('object_distance', 'Object Distance'),
+                ('atmospheric_temperature', 'Atmospheric Temperature'),
+                ('reflected_apparent_temperature', 'Reflected Apparent Temperature'),
+                ('ir_window_temperature', 'IR Window Temperature'),
+                ('relative_humidity', 'Relative Humidity'),
+            ]:
+                if key in meta_json:
+                    kwargs[name] = float(meta_json[key][:-2])
+            return self.parse_flir(
+                image_filename=image_filename,
+                **kwargs,
+            )
         elif camera_model in {
             Thermal.DJI_ZH20T,
             Thermal.DJI_XTS,
         }:
-            return self.parse_dirp2(image_filename=image_filename, meta_json=meta_json)
+            for key in ['Image Height', 'Image Width']:
+                assert key in meta_json, 'The `{}` field is missing'.format(key)
+            kwargs = dict((name, float(meta_json[key])) for name, key in [
+                ('object_distance', 'Object Distance'),
+                ('relative_humidity', 'Relative Humidity'),
+                ('emissivity', 'Emissivity'),
+                ('reflected_apparent_temperature', 'Reflection'),
+            ] if key in meta_json)
+            kwargs['image_height'] = int(meta_json['Image Height'])
+            kwargs['image_width'] = int(meta_json['Image Width'])
+            if 'emissivity' in kwargs:
+                kwargs['emissivity'] /= 100
+            return self.parse_dirp2(
+                image_filename=image_filename,
+                **kwargs,
+            )
 
     def parse_flir(
             self,
             image_filename: str,
-            meta_json: dict,
+            # params
+            emissivity: float = 1.0,
+            object_distance: float = 1.0,
+            atmospheric_temperature: float = 20.0,
+            reflected_apparent_temperature: float = 20.0,
+            ir_window_temperature: float = 20.0,
+            ir_window_transmission: float = 1.0,
+            relative_humidity: float = 50.0,
+            # planck constants
+            planck_r1: float = 21106.77,
+            planck_b: float = 1501.0,
+            planck_f: float = 1.0,
+            planck_o: float = -7340.0,
+            planck_r2: float = 0.012545258,
+            # constants
+            ata1: float = 0.006569,
+            ata2: float = 0.01262,
+            atb1: float = -0.002276,
+            atb2: float = -0.00667,
+            atx: float = 1.9,
     ) -> np.ndarray:
         """
-        from https://github.com/gtatters/Thermimage/blob/master/R/raw2temp.R
-        from https://github.com/detecttechnologies/thermal_base
-        from https://github.com/aloisklink/flirextractor/blob/1fc759808c747ad5562a9ddb3cd75c4def8a3f69/flirextractor/raw_temp_to_celcius.py
+        Parser infrared camera data as `NumPy` data`.
+
+        Equations to convert to temperature see http://130.15.24.88/exiftool/forum/index.php/topic,4898.60.html or https://github.com/gtatters/Thermimage/blob/master/R/raw2temp.R
+
+        Args:
+            image_filename: str, relative path of R-JPEG image
+            emissivity: float, E: Emissivity - default 1, should be ~0.95 to 0.97 depending on source
+            object_distance: float, OD: Object distance in metres
+            atmospheric_temperature: float, ATemp: atmospheric temperature for tranmission loss - one value from FLIR file (oC) - default = RTemp
+            reflected_apparent_temperature: float, RTemp: apparent reflected temperature - one value from FLIR file (oC), default 20C
+            ir_window_temperature: float, Infrared Window Temperature - default = RTemp (oC)
+            ir_window_transmission: float, Infrared Window transmission - default 1.  likely ~0.95-0.96. Should be empirically determined.
+            relative_humidity: float, Relative humidity - default 50%
+            Calibration Constants                                          (A FLIR SC660, A FLIR T300(25o), T300(telephoto), A Mikron 7515)
+            planck_r1: float, PlanckR1 calibration constant from FLIR file  21106.77       14364.633         14906.216       21106.77
+            planck_b: float, PlanckB calibration constant from FLIR file    1501           1385.4            1396.5          9758.743281
+            planck_f: float, PlanckF calibration constant from FLIR file    1              1                 1               29.37648768
+            planck_o: float, PlanckO calibration constant from FLIR file    -7340          -5753             -7261           1278.907078
+            planck_r2: float, PlanckR2 calibration constant form FLIR file  0.012545258    0.010603162       0.010956882     0.0376637583528285
+            ata1: float, Atmospheric Trans Alpha 1  0.006569 constant for calculating humidity effects on transmission
+            ata2: float, Atmospheric Trans Alpha 2  0.012620 constant for calculating humidity effects on transmission
+            atb1: float, Atmospheric Trans Beta 1  -0.002276 constant for calculating humidity effects on transmission
+            atb2: float, Atmospheric Trans Beta 2  -0.006670 constant for calculating humidity effects on transmission
+            atx: float, Atmospheric Trans X        1.900000 constant for calculating humidity effects on transmission
+
+        Returns:
+            np.ndarray: temperature array
+
+        References:
+            * from https://github.com/gtatters/Thermimage/blob/master/R/raw2temp.R
+            * from https://github.com/detecttechnologies/thermal_base
+            * from https://github.com/aloisklink/flirextractor/blob/1fc759808c747ad5562a9ddb3cd75c4def8a3f69/flirextractor/raw_temp_to_celcius.py
         """
         thermal_img_bytes = subprocess.check_output([
             self._exiftool_filename, '-RawThermalImage', '-b', image_filename
@@ -541,28 +640,6 @@ class Thermal:
             raw = unpack(image_filename)
         else:
             raise ValueError
-
-        # params
-        emissivity = float(meta_json['Emissivity'])
-        object_distance = float(meta_json['Object Distance'][:-2])
-        atmospheric_temperature = float(meta_json['Atmospheric Temperature'][:-2])
-        reflected_apparent_temperature = float(meta_json['Reflected Apparent Temperature'][:-2])
-        ir_window_temperature = float(meta_json['IR Window Temperature'][:-2])
-        ir_window_transmission = float(meta_json['IR Window Transmission'])
-        relative_humidity = float(meta_json['Relative Humidity'][:-2])
-
-        planck_r1 = float(meta_json['Planck R1'])
-        planck_b = float(meta_json['Planck B'])
-        planck_f = float(meta_json['Planck F'])
-        planck_o = float(meta_json['Planck O'])
-        planck_r2 = float(meta_json['Planck R2'])
-
-        # constants
-        ata1 = float(meta_json['Atmospheric Trans Alpha 1'])
-        ata2 = float(meta_json['Atmospheric Trans Alpha 2'])
-        atb1 = float(meta_json['Atmospheric Trans Beta 1'])
-        atb2 = float(meta_json['Atmospheric Trans Beta 2'])
-        atx = float(meta_json['Atmospheric Trans X'])
 
         # transmission through window (calibrated)
         emiss_wind = 1 - ir_window_transmission
@@ -581,36 +658,29 @@ class Thermal:
             -np.sqrt(object_distance / 2) * (ata2 + atb2 * np.sqrt(h2o))
         )
         # radiance from the environment
-        raw_refl1 = planck_r1 / (
-                planck_r2 * (np.exp(planck_b / (reflected_apparent_temperature + 273.15)) - planck_f)) - planck_o
-        raw_refl1_attn = (1 - emissivity) / emissivity * raw_refl1  # Reflected component
+        raw_refl1 = planck_r1 / (planck_r2 * (np.exp(planck_b / (reflected_apparent_temperature + ABSOLUTE_ZERO)) - planck_f)) - planck_o
+        # Reflected component
+        raw_refl1_attn = (1 - emissivity) / emissivity * raw_refl1
 
-        raw_atm1 = (
-                planck_r1 / (planck_r2 * (np.exp(planck_b / (atmospheric_temperature + 273.15)) - planck_f)) - planck_o
-        )  # Emission from atmosphere 1
-        raw_atm1_attn = (1 - tau1) / emissivity / tau1 * raw_atm1  # attenuation for atmospheric 1 emission
+        # Emission from atmosphere 1
+        raw_atm1 = (planck_r1 / (planck_r2 * (np.exp(planck_b / (atmospheric_temperature + ABSOLUTE_ZERO)) - planck_f)) - planck_o)
+        # attenuation for atmospheric 1 emission
+        raw_atm1_attn = (1 - tau1) / emissivity / tau1 * raw_atm1
 
-        raw_wind = (
-                planck_r1 / (planck_r2 * (np.exp(planck_b / (ir_window_temperature + 273.15)) - planck_f)) - planck_o
-        )  # Emission from window due to its own temp
-        raw_wind_attn = (
-                emiss_wind / emissivity / tau1 / ir_window_transmission * raw_wind
-        )  # Componen due to window emissivity
+        # Emission from window due to its own temp
+        raw_wind = (planck_r1 / (planck_r2 * (np.exp(planck_b / (ir_window_temperature + ABSOLUTE_ZERO)) - planck_f)) - planck_o)
+        # Componen due to window emissivity
+        raw_wind_attn = (emiss_wind / emissivity / tau1 / ir_window_transmission * raw_wind)
 
-        raw_refl2 = (
-                planck_r1 / (
-                planck_r2 * (np.exp(planck_b / (reflected_apparent_temperature + 273.15)) - planck_f)) - planck_o
-        )  # Reflection from window due to external objects
-        raw_refl2_attn = (
-                refl_wind / emissivity / tau1 / ir_window_transmission * raw_refl2
-        )  # component due to window reflectivity
+        # Reflection from window due to external objects
+        raw_refl2 = (planck_r1 / (planck_r2 * (np.exp(planck_b / (reflected_apparent_temperature + ABSOLUTE_ZERO)) - planck_f)) - planck_o)
+        # component due to window reflectivity
+        raw_refl2_attn = (refl_wind / emissivity / tau1 / ir_window_transmission * raw_refl2)
 
-        raw_atm2 = (
-                planck_r1 / (planck_r2 * (np.exp(planck_b / (atmospheric_temperature + 273.15)) - planck_f)) - planck_o
-        )  # Emission from atmosphere 2
-        raw_atm2_attn = (
-                (1 - tau2) / emissivity / tau1 / ir_window_transmission / tau2 * raw_atm2
-        )  # attenuation for atmospheric 2 emission
+        # Emission from atmosphere 2
+        raw_atm2 = (planck_r1 / (planck_r2 * (np.exp(planck_b / (atmospheric_temperature + ABSOLUTE_ZERO)) - planck_f)) - planck_o)
+        # attenuation for atmospheric 2 emission
+        raw_atm2_attn = ((1 - tau2) / emissivity / tau1 / ir_window_transmission / tau2 * raw_atm2)
 
         raw_obj = (
                 raw / emissivity / tau1 / ir_window_transmission / tau2
@@ -622,9 +692,9 @@ class Thermal:
         )
         val_to_log = planck_r1 / (planck_r2 * (raw_obj + planck_o)) + planck_f
         if any(val_to_log.ravel() < 0):
-            raise Exception('Image seems to be corrupted')
+            raise ValueError('Image seems to be corrupted:{}'.format(image_filename))
         # temperature from radiance
-        temperature = planck_b / np.log(val_to_log) - 273.15
+        temperature = planck_b / np.log(val_to_log) - ABSOLUTE_ZERO
         return np.array(temperature, self._dtype)
 
     def parse_dirp2(
@@ -632,29 +702,34 @@ class Thermal:
             image_filename: str,
             image_height: int = 512,
             image_width: int = 640,
-            meta_json: Optional[dict] = None,
-            object_distance: Optional[float] = None,
-            relative_humidity: Optional[float] = None,
-            emissivity: Optional[float] = None,
-            reflected_apparent_temperature: Optional[float] = None,
+            object_distance: float = 5.0,
+            relative_humidity: float = 70.0,
+            emissivity: float = 1.0,
+            reflected_apparent_temperature: float = 230.0,
     ):
+        """
+        Parser infrared camera data as `NumPy` data`.
+        `dirp2` means `DJI IR Processing Version 2nd`.
+
+        Args:
+            image_filename: str, relative path of R-JPEG image
+            image_height: float, image height
+            image_width: float, image width
+            object_distance: float,
+            relative_humidity: float,
+            emissivity: float,
+            reflected_apparent_temperature: float,
+
+        Returns:
+            np.ndarray: temperature array
+
+        References:
+            * [DJI Thermal SDK](https://www.dji.com/cn/downloads/softwares/dji-thermal-sdk)
+        """
         with open(image_filename, 'rb') as file:
             raw = file.read()
             raw_size = c_int32(len(raw))
             raw_c_uint8 = cast(raw, POINTER(c_uint8))
-
-        if isinstance(meta_json, dict):
-            image_height = int(meta_json['Image Height'])
-            image_width = int(meta_json['Image Width'])
-
-            if 'Object Distance' in meta_json:
-                object_distance = float(meta_json['Object Distance'])
-            if 'Relative Humidity' in meta_json:
-                relative_humidity = float(meta_json['Relative Humidity'])
-            if 'Emissivity' in meta_json:
-                emissivity = float(meta_json['Emissivity']) / 100
-            if 'Reflection' in meta_json:
-                reflected_apparent_temperature = float(meta_json['Reflection'])
 
         handle = DIRP_HANDLE()
         rjpeg_version = dirp_rjpeg_version_t()
@@ -701,21 +776,3 @@ class Thermal:
         DJI will release a new version SDK that supports M2EA in the second half of 2021.
         """
         raise NotImplementedError
-
-
-def thermal_main():
-    thermal = Thermal(
-        # dji_sdk_filename='./dji_thermal_sdk_v1.0_20201110/utility/bin/windows/release_x64/libdirp.dll',
-        dji_sdk_filename=r'E:\IdeaProjects\traffic_congestion\trt_server\plugins\dji_thermal_sdk\lib\windows\release_x64\libdirp.dll',
-        dtype=np.float32,
-    )
-    temp = thermal(
-        # image_filename=r'./exiftool-12.30/DJI_0001_R_XT2.JPG',
-        # image_filename=r'./exiftool-12.30/DJI_20210520115910_0055_T.JPG',
-        # image_filename=r'./exiftool-12.30/DJI_0001_R_XTS.jpg',
-        # image_filename=r'./exiftool-12.30/Flir_B60.jpg',
-        # image_filename=r'./exiftool-12.30/ax8.jpg',
-        # image_filename=r'./exiftool-12.30/zenmuse_xtr.jpg',
-        image_filename=r'E:\IdeaProjects\traffic_congestion\data\t_images\DJI_20210821125320_0022_T.JPG',
-    )
-    print('min temp:{}, max temp:{}'.format(np.min(temp), np.max(temp)))
