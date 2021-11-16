@@ -7,7 +7,6 @@ from io import BufferedIOBase, BytesIO
 from typing import BinaryIO, Dict, Optional, Tuple, Union
 
 import numpy as np
-
 from PIL import Image
 
 __all__ = [
