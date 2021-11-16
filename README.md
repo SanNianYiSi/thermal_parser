@@ -4,8 +4,9 @@ Parser infrared camera data as `NumPy` data.
 
 ## Usage
 
-* If you run this project code on Linux, make sure [exiftool](https://exiftool.org/install.html) is installed first or
-  run `sudo apt-get install libimage-exiftool-perl` on the console to install [exiftool](https://exiftool.org/install.html).
+* Clone this respository and `cd thermal_parser`.
+* Run `pip install -r requirements.txt` in the console
+* If you run this project code on Linux, make sure [exiftool](https://exiftool.org/install.html) is installed first or run `sudo apt-get install libimage-exiftool-perl` in the console to install [exiftool](https://exiftool.org/install.html).
 * Copy `thermal.py` file to project directory.
 * Copy `plugins` folder to same directory.
 * Try the following code:
