@@ -11,6 +11,8 @@ Parser infrared camera data as `NumPy` data.
 * Copy `plugins` folder to same directory.
 * Try the following code:
 
+**win 64**
+
 ```python
 import numpy as np
 from thermal import Thermal
@@ -18,6 +20,22 @@ from thermal import Thermal
 thermal = Thermal(
     dji_sdk_filename='plugins/dji_sdk/lib/windows/release_x64/libdirp.dll',
     exif_filename='plugins/exiftool-12.35.exe',
+    dtype=np.float32,
+)
+temperature = thermal.parse_dirp2(image_filename='images/DJI_H20T.jpg')
+assert isinstance(temperature, np.ndarray)
+```
+
+**linux**
+
+```python
+import numpy as np
+from thermal import Thermal
+
+thermal = Thermal(
+    dji_sdk_filename='plugins/dji_sdk/lib/linux/release_x64/libdirp.so',
+    exif_filename=None,
+    dtype=np.float32,
 )
 temperature = thermal.parse_dirp2(image_filename='images/DJI_H20T.jpg')
 assert isinstance(temperature, np.ndarray)
