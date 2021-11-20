@@ -80,14 +80,30 @@ class TestThermal(unittest.TestCase):
             temperature = thermal.parse_dirp2(image_filename=image_filename)
             assert isinstance(temperature, np.ndarray)
 
-    def test_parse_dirp3(self):
-        pass
+    # def test_parse_dirp3(self):
+    #     thermal = TestThermal.get_thermal()
+    #     for image_filename in [
+    #         'images/M2EA/DJI_0001_R.JPG',
+    #         'images/M2EA/DJI_0002_R.JPG',
+    #         'images/M2EA/DJI_0003_R.JPG',
+    #         'images/M2EA/DJI_0004_R.JPG',
+    #         'images/M2EA/DJI_0005_R.JPG',
+    #     ]:
+    #         temperature = thermal.parse_dirp2(image_filename=image_filename)
+    #         assert isinstance(temperature, np.ndarray)
 
     def test_multi_thread(self):
         thermal = TestThermal.get_thermal()
         image_filename = 'images/DJI_H20T.jpg'
         for _ in range(5):
             _thread.start_new_thread(TestThermal.get_multi_thread_test_func(), (thermal, image_filename))
+
+    def test_result(self):
+        thermal = TestThermal.get_thermal()
+        image_filename = 'images/DJI_H20T.jpg'
+        temperature = thermal.parse_dirp2(image_filename=image_filename)
+        assert 12 < np.min(temperature) < 14, 'temperature min:{}'.format(np.min(temperature))
+        assert 27 < np.max(temperature) < 29, 'temperature max:{}'.format(np.max(temperature))
 
 
 if __name__ == '__main__':
