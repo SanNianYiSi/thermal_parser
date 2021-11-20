@@ -713,7 +713,7 @@ class Thermal:
             object_distance: float = 5.0,
             relative_humidity: float = 70.0,
             emissivity: float = 1.0,
-            reflected_apparent_temperature: float = 230.0,
+            reflected_apparent_temperature: float = 23.0,
     ):
         """
         Parser infrared camera data as `NumPy` data`.
@@ -747,17 +747,24 @@ class Thermal:
         assert return_status == Thermal.DIRP_SUCCESS, 'dirp_create_from_rjpeg error {}:{}'.format(image_filename, return_status)
         assert self._dirp_get_rjpeg_version(handle, rjpeg_version) == Thermal.DIRP_SUCCESS
         assert self._dirp_get_rjpeg_resolution(handle, rjpeg_resolotion) == Thermal.DIRP_SUCCESS
-        if isinstance(object_distance, (float, int)) and \
-                isinstance(relative_humidity, (float, int)) and \
-                isinstance(emissivity, (float, int)) and \
-                isinstance(reflected_apparent_temperature, (float, int)):
-            params = dirp_measurement_params_t()
+
+        params = dirp_measurement_params_t()
+        params_point = pointer(params)
+        return_status = self._dirp_get_measurement_params(handle, params_point)
+        assert return_status == Thermal.DIRP_SUCCESS, 'dirp_get_measurement_params error {}:{}'.format(image_filename, return_status)
+
+        if isinstance(object_distance, (float, int)):
             params.distance = object_distance
+        if isinstance(relative_humidity, (float, int)):
             params.humidity = relative_humidity
+        if isinstance(emissivity, (float, int)):
             params.emissivity = emissivity
+        if isinstance(reflected_apparent_temperature, (float, int)):
             params.reflection = reflected_apparent_temperature
-            return_status = self._dirp_set_measurement_params(handle, params)
-            assert return_status == Thermal.DIRP_SUCCESS, 'dirp_set_measurement_params error {}:{}'.format(image_filename, return_status)
+
+        return_status = self._dirp_set_measurement_params(handle, params)
+        assert return_status == Thermal.DIRP_SUCCESS, 'dirp_set_measurement_params error {}:{}'.format(image_filename, return_status)
+
         if self._dtype.__name__ == np.float32.__name__:
             data = np.zeros(image_width * image_height, dtype=np.float32)
             data_ptr = data.ctypes.data_as(POINTER(c_float))
