@@ -56,6 +56,7 @@ class TestThermal(unittest.TestCase):
             'images/FLIR_B60.jpg',
             'images/FLIR_E40.jpg',
             'images/FLIR_T640.jpg',
+            'images/M2EA/DJI_0001_R.JPG',
         ]:
             temperature = thermal(image_filename=image_filename)
             assert isinstance(temperature, np.ndarray)
@@ -80,17 +81,17 @@ class TestThermal(unittest.TestCase):
             temperature = thermal.parse_dirp2(image_filename=image_filename)
             assert isinstance(temperature, np.ndarray)
 
-    # def test_parse_dirp3(self):
-    #     thermal = TestThermal.get_thermal()
-    #     for image_filename in [
-    #         'images/M2EA/DJI_0001_R.JPG',
-    #         'images/M2EA/DJI_0002_R.JPG',
-    #         'images/M2EA/DJI_0003_R.JPG',
-    #         'images/M2EA/DJI_0004_R.JPG',
-    #         'images/M2EA/DJI_0005_R.JPG',
-    #     ]:
-    #         temperature = thermal.parse_dirp2(image_filename=image_filename)
-    #         assert isinstance(temperature, np.ndarray)
+    def test_parse_m2ea(self):
+        thermal = TestThermal.get_thermal()
+        for image_filename in [
+            'images/M2EA/DJI_0001_R.JPG',
+            'images/M2EA/DJI_0002_R.JPG',
+            'images/M2EA/DJI_0003_R.JPG',
+            'images/M2EA/DJI_0004_R.JPG',
+            'images/M2EA/DJI_0005_R.JPG',
+        ]:
+            temperature = thermal.parse_dirp2(image_filename=image_filename, m2ea_mode=True)
+            assert isinstance(temperature, np.ndarray)
 
     def test_multi_thread(self):
         thermal = TestThermal.get_thermal()
