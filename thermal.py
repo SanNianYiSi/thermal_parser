@@ -339,6 +339,7 @@ class Thermal:
     DJI_ZH20T = 'ZH20T'
     DJI_XTS = 'XT S'
     DJI_XTR = 'FLIR'
+    DJI_M2EA = 'MAVIC2-ENTERPRISE-ADVANCED'
     FLIR_B60 = 'Flir b60'
     FLIR_E40 = 'FLIR E40'
     FLIR_T640 = 'FLIR T640'
@@ -406,6 +407,7 @@ class Thermal:
             Thermal.DJI_XT2, Thermal.DJI_ZH20T, Thermal.DJI_XTS, Thermal.DJI_XTR,
             Thermal.FLIR_B60, Thermal.FLIR_E40, Thermal.FLIR_T640,
             Thermal.FLIR, Thermal.FLIR_DEFAULT, Thermal.FLIR_AX8,
+            Thermal.DJI_M2EA,
         }
         if 'win' in sys.platform:
             assert isinstance(exif_filename, str)
@@ -557,6 +559,7 @@ class Thermal:
         elif camera_model in {
             Thermal.DJI_ZH20T,
             Thermal.DJI_XTS,
+            Thermal.DJI_M2EA,
         }:
             for key in ['Image Height', 'Image Width']:
                 assert key in meta_json, 'The `{}` field is missing'.format(key)
@@ -570,6 +573,8 @@ class Thermal:
             kwargs['image_width'] = int(meta_json['Image Width'])
             if 'emissivity' in kwargs:
                 kwargs['emissivity'] /= 100
+            if camera_model == Thermal.DJI_M2EA:
+                kwargs['m2ea_mode'] = True,
             return self.parse_dirp2(
                 image_filename=image_filename,
                 **kwargs,
@@ -714,6 +719,7 @@ class Thermal:
             relative_humidity: float = 70.0,
             emissivity: float = 1.0,
             reflected_apparent_temperature: float = 23.0,
+            m2ea_mode: bool = False,
     ):
         """
         Parser infrared camera data as `NumPy` data`.
@@ -748,22 +754,23 @@ class Thermal:
         assert self._dirp_get_rjpeg_version(handle, rjpeg_version) == Thermal.DIRP_SUCCESS
         assert self._dirp_get_rjpeg_resolution(handle, rjpeg_resolotion) == Thermal.DIRP_SUCCESS
 
-        params = dirp_measurement_params_t()
-        params_point = pointer(params)
-        return_status = self._dirp_get_measurement_params(handle, params_point)
-        assert return_status == Thermal.DIRP_SUCCESS, 'dirp_get_measurement_params error {}:{}'.format(image_filename, return_status)
+        if not m2ea_mode:
+            params = dirp_measurement_params_t()
+            params_point = pointer(params)
+            return_status = self._dirp_get_measurement_params(handle, params_point)
+            assert return_status == Thermal.DIRP_SUCCESS, 'dirp_get_measurement_params error {}:{}'.format(image_filename, return_status)
 
-        if isinstance(object_distance, (float, int)):
-            params.distance = object_distance
-        if isinstance(relative_humidity, (float, int)):
-            params.humidity = relative_humidity
-        if isinstance(emissivity, (float, int)):
-            params.emissivity = emissivity
-        if isinstance(reflected_apparent_temperature, (float, int)):
-            params.reflection = reflected_apparent_temperature
+            if isinstance(object_distance, (float, int)):
+                params.distance = object_distance
+            if isinstance(relative_humidity, (float, int)):
+                params.humidity = relative_humidity
+            if isinstance(emissivity, (float, int)):
+                params.emissivity = emissivity
+            if isinstance(reflected_apparent_temperature, (float, int)):
+                params.reflection = reflected_apparent_temperature
 
-        return_status = self._dirp_set_measurement_params(handle, params)
-        assert return_status == Thermal.DIRP_SUCCESS, 'dirp_set_measurement_params error {}:{}'.format(image_filename, return_status)
+            return_status = self._dirp_set_measurement_params(handle, params)
+            assert return_status == Thermal.DIRP_SUCCESS, 'dirp_set_measurement_params error {}:{}'.format(image_filename, return_status)
 
         if self._dtype.__name__ == np.float32.__name__:
             data = np.zeros(image_width * image_height, dtype=np.float32)
