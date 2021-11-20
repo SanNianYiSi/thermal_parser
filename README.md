@@ -56,7 +56,7 @@ assert isinstance(temperature, np.ndarray)
 * FLIR B60
 * FLIR E40
 * FLIR T640
-* ~~M2EA~~ (DJI will release a new version SDK that supports M2EA in the second half of 2021.)
+* M2EA / MAVIC2-ENTERPRISE-ADVANCED / "御"2 行业进阶版
 
 ## References
 
