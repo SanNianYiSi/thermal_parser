@@ -18,7 +18,9 @@ import numpy as np
 from thermal import Thermal
 
 thermal = Thermal(
-    dji_sdk_filename='plugins/dji_sdk/lib/windows/release_x64/libdirp.dll',
+    dirp_filename='plugins/dji_thermal_sdk_v1.1_20211029/windows/release_x64/libdirp.dll',
+    dirp_sub_filename='plugins/dji_thermal_sdk_v1.1_20211029/windows/release_x64/libv_dirp.dll',
+    iirp_filename='plugins/dji_thermal_sdk_v1.1_20211029/windows/release_x64/libv_iirp.dll',
     exif_filename='plugins/exiftool-12.35.exe',
     dtype=np.float32,
 )
@@ -33,7 +35,9 @@ import numpy as np
 from thermal import Thermal
 
 thermal = Thermal(
-    dji_sdk_filename='plugins/dji_sdk/lib/linux/release_x64/libdirp.so',
+    dirp_filename='plugins/dji_thermal_sdk_v1.1_20211029/linux/release_x64/libdirp.so',
+    dirp_sub_filename='plugins/dji_thermal_sdk_v1.1_20211029/linux/release_x64/libv_dirp.so',
+    iirp_filename='plugins/dji_thermal_sdk_v1.1_20211029/linux/release_x64/libv_iirp.so',
     exif_filename=None,
     dtype=np.float32,
 )
@@ -56,6 +60,7 @@ assert isinstance(temperature, np.ndarray)
 
 ## References
 
+* [DJI Thermal SDK](https://www.dji.com/cn/downloads/softwares/dji-thermal-sdk) The DJI Thermal SDK enables you to process R-JPEG (Radiometric JPEG) images which were captured by DJI infrared camera products.
 * [Thermal Image Analysis](https://github.com/detecttechnologies/Thermal-Image-Analysis) A tool for analyzing and annotating thermal images.
 * [Base codes for Thermography](https://github.com/detecttechnologies/thermal_base) A python package for decoding and common processing for thermographs / thermograms
 * [thermography](https://github.com/cdeldon/thermography) This repository contains the implementation of a feasibility study for automatic detection of defected solar panel modules.
