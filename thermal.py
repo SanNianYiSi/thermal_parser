@@ -366,7 +366,9 @@ class Thermal:
 
     def __init__(
             self,
-            dji_sdk_filename: str,
+            dirp_filename: str,
+            dirp_sub_filename: str,
+            iirp_filename: str,
             exif_filename: Optional[str] = None,
             dtype=np.float32,
     ):
@@ -374,7 +376,9 @@ class Thermal:
         Load exiftool/DJI SDK.
 
         Args:
-            dji_sdk_filename: str, DJI SDK file path.
+            dirp_filename: str, DJI SDK file path.
+            dirp_sub_filename: str, DJI SDK file path.
+            iirp_filename: str, DJI SDK file path.
             dtype: np.float32 or np.int16.
 
         Raises
@@ -391,10 +395,12 @@ class Thermal:
             * DJI SDK cannot be registered properly
 
         """
-        assert path.exists(dji_sdk_filename)
+        assert path.exists(dirp_filename)
         assert dtype.__name__ in {np.float32.__name__, np.int16.__name__}
 
-        self._dji_sdk_filename = dji_sdk_filename
+        self._dirp_filename = dirp_filename
+        self._dirp_sub_filename = dirp_sub_filename
+        self._iirp_filename = iirp_filename
         self._dtype = dtype
         self._support_camera_model = {
             Thermal.DJI_XT2, Thermal.DJI_ZH20T, Thermal.DJI_XTS, Thermal.DJI_XTR,
@@ -414,22 +420,25 @@ class Thermal:
                 'Operating system not supported. Current Operation system is {}'.format(sys.platform))
 
         try:
-            self._thermal_dll = CDLL(self._dji_sdk_filename)
+            self._dirp_dll = CDLL(self._dirp_filename)
+            self._dirp_sub_dll = CDLL(self._dirp_sub_filename)
+            self._iirp_dll = CDLL(self._iirp_filename)
         except OSError:
             print('Unable to load the system C library')
             sys.exit()
 
-        # Register SDK for the application.
-        # User must call this function once at initialize stage.
-        # Key string is "DJI_TSDK\0".
-        self._dirp_register_app = self._thermal_dll.dirp_register_app
-        self._dirp_register_app.argtypes = [c_char_p]
-        self._dirp_register_app.restype = c_int32
+        # NOTE: The following code is for dji_thermal_sdk_v1.0
+        # # Register SDK for the application.
+        # # User must call this function once at initialize stage.
+        # # Key string is "DJI_TSDK\0".
+        # self._dirp_register_app = self._thermal_dll.dirp_register_app
+        # self._dirp_register_app.argtypes = [c_char_p]
+        # self._dirp_register_app.restype = c_int32
+        #
+        # ret_code = self._dirp_register_app(cast(create_string_buffer(b'DJI_TSDK'), c_char_p))
+        # assert ret_code == Thermal.DIRP_SUCCESS
 
-        ret_code = self._dirp_register_app(cast(create_string_buffer(b'DJI_TSDK'), c_char_p))
-        assert ret_code == Thermal.DIRP_SUCCESS
-
-        self._dirp_set_verbose_level = self._thermal_dll.dirp_set_verbose_level
+        self._dirp_set_verbose_level = self._dirp_dll.dirp_set_verbose_level
         self._dirp_set_verbose_level.argtypes = [c_int]
         self._dirp_set_verbose_level(DIRP_VERBOSE_LEVEL_NONE)
 
@@ -437,43 +446,43 @@ class Thermal:
         # The R-JPEG binary data buffer must remain valid until the handle is destroyed.
         # The DIRP API library will create some alloc buffers for inner usage.
         # So the application should reserve enough stack size for the library.
-        self._dirp_create_from_rjpeg = self._thermal_dll.dirp_create_from_rjpeg
+        self._dirp_create_from_rjpeg = self._dirp_dll.dirp_create_from_rjpeg
         self._dirp_create_from_rjpeg.argtypes = [POINTER(c_uint8), c_int32, POINTER(DIRP_HANDLE)]
         self._dirp_create_from_rjpeg.restype = c_int32
 
         # Destroy the DIRP handle.
-        self._dirp_destroy = self._thermal_dll.dirp_destroy
+        self._dirp_destroy = self._dirp_dll.dirp_destroy
         self._dirp_destroy.argtypes = [DIRP_HANDLE]
         self._dirp_destroy.restype = c_int32
 
-        self._dirp_get_rjpeg_version = self._thermal_dll.dirp_get_rjpeg_version
+        self._dirp_get_rjpeg_version = self._dirp_dll.dirp_get_rjpeg_version
         self._dirp_get_rjpeg_version.argtypes = [DIRP_HANDLE, POINTER(dirp_rjpeg_version_t)]
         self._dirp_get_rjpeg_version.restype = c_int32
 
-        self._dirp_get_rjpeg_resolution = self._thermal_dll.dirp_get_rjpeg_resolution
+        self._dirp_get_rjpeg_resolution = self._dirp_dll.dirp_get_rjpeg_resolution
         self._dirp_get_rjpeg_resolution.argtypes = [DIRP_HANDLE, POINTER(dirp_resolotion_t)]
         self._dirp_get_rjpeg_resolution.restype = c_int32
 
         # Get orignial/custom temperature measurement parameters.
-        self._dirp_get_measurement_params = self._thermal_dll.dirp_get_measurement_params
+        self._dirp_get_measurement_params = self._dirp_dll.dirp_get_measurement_params
         self._dirp_get_measurement_params.argtypes = [DIRP_HANDLE, POINTER(dirp_measurement_params_t)]
         self._dirp_get_measurement_params.restype = c_int32
 
         # Set custom temperature measurement parameters.
-        self._dirp_set_measurement_params = self._thermal_dll.dirp_set_measurement_params
+        self._dirp_set_measurement_params = self._dirp_dll.dirp_set_measurement_params
         self._dirp_set_measurement_params.argtypes = [DIRP_HANDLE, POINTER(dirp_measurement_params_t)]
         self._dirp_set_measurement_params.restype = c_int32
 
         # Measure temperature of whole thermal image with RAW data in R-JPEG.
         # Each INT16 pixel value represents ten times the temperature value in Celsius. In other words,
         # each LSB represents 0.1 degrees Celsius.
-        self._dirp_measure = self._thermal_dll.dirp_measure
+        self._dirp_measure = self._dirp_dll.dirp_measure
         self._dirp_measure.argtypes = [DIRP_HANDLE, POINTER(c_int16), c_int32]
         self._dirp_measure.restype = c_int32
 
         # Measure temperature of whole thermal image with RAW data in R-JPEG.
         # Each float32 pixel value represents the real temperature in Celsius.
-        self._dirp_measure_ex = self._thermal_dll.dirp_measure_ex
+        self._dirp_measure_ex = self._dirp_dll.dirp_measure_ex
         self._dirp_measure_ex.argtypes = [DIRP_HANDLE, POINTER(c_float), c_int32]
         self._dirp_measure_ex.restype = c_int32
 
@@ -735,7 +744,7 @@ class Thermal:
         rjpeg_resolotion = dirp_resolotion_t()
 
         return_status = self._dirp_create_from_rjpeg(raw_c_uint8, raw_size, handle)
-        assert return_status == Thermal.DIRP_SUCCESS, '{}:{}'.format(image_filename, return_status)
+        assert return_status == Thermal.DIRP_SUCCESS, 'dirp_create_from_rjpeg error {}:{}'.format(image_filename, return_status)
         assert self._dirp_get_rjpeg_version(handle, rjpeg_version) == Thermal.DIRP_SUCCESS
         assert self._dirp_get_rjpeg_resolution(handle, rjpeg_resolotion) == Thermal.DIRP_SUCCESS
         if isinstance(object_distance, (float, int)) and \
@@ -747,7 +756,8 @@ class Thermal:
             params.humidity = relative_humidity
             params.emissivity = emissivity
             params.reflection = reflected_apparent_temperature
-            assert self._dirp_set_measurement_params(handle, params) == Thermal.DIRP_SUCCESS
+            return_status = self._dirp_set_measurement_params(handle, params)
+            assert return_status == Thermal.DIRP_SUCCESS, 'dirp_set_measurement_params error {}:{}'.format(image_filename, return_status)
         if self._dtype.__name__ == np.float32.__name__:
             data = np.zeros(image_width * image_height, dtype=np.float32)
             data_ptr = data.ctypes.data_as(POINTER(c_float))
@@ -765,13 +775,3 @@ class Thermal:
         assert self._dirp_destroy(handle) == Thermal.DIRP_SUCCESS
 
         return np.array(temp, dtype=self._dtype)
-
-    def parse_dirp3(
-            self
-    ):
-        """
-        Prepare for M2EA
-        [DJI TSDK (Thermal SDK) officially launched](https://forum.dji.com/forum.php?mod=viewthread&tid=230321)
-        DJI will release a new version SDK that supports M2EA in the second half of 2021.
-        """
-        raise NotImplementedError
