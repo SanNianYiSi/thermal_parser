@@ -12,15 +12,21 @@ class TestThermal(unittest.TestCase):
     @staticmethod
     def get_thermal() -> Thermal:
         if 'win' in sys.platform:
-            dji_sdk_filename = 'plugins/dji_sdk/lib/windows/release_x64/libdirp.dll'
+            dirp_filename = 'plugins/dji_thermal_sdk_v1.1_20211029/windows/release_x64/libdirp.dll'
+            dirp_sub_filename = 'plugins/dji_thermal_sdk_v1.1_20211029/windows/release_x64/libv_dirp.dll'
+            iirp_filename = 'plugins/dji_thermal_sdk_v1.1_20211029/windows/release_x64/libv_iirp.dll'
         else:
-            dji_sdk_filename = 'plugins/dji_sdk/lib/linux/release_x64/libdirp.so'
+            dirp_filename = 'plugins/dji_thermal_sdk_v1.1_20211029/linux/release_x64/libdirp.so'
+            dirp_sub_filename = 'plugins/dji_thermal_sdk_v1.1_20211029/linux/release_x64/libv_dirp.so'
+            iirp_filename = 'plugins/dji_thermal_sdk_v1.1_20211029/linux/release_x64/libv_iirp.so'
         if 'win' in sys.platform:
             exif_filename = 'plugins/exiftool-12.35.exe'
         else:
             exif_filename = None
         thermal = Thermal(
-            dji_sdk_filename=dji_sdk_filename,
+            dirp_filename=dirp_filename,
+            dirp_sub_filename=dirp_sub_filename,
+            iirp_filename=iirp_filename,
             exif_filename=exif_filename,
         )
         return thermal
