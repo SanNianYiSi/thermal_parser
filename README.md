@@ -2,6 +2,8 @@
 
 Parser infrared camera data as `NumPy` data.
 
+![image](./images/image.jpg)
+
 ## Usage
 
 * Clone this respository and `cd thermal_parser`.
