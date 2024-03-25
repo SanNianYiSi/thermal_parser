@@ -27,14 +27,15 @@ class TestThermal(unittest.TestCase):
 
     @staticmethod
     def get_thermal() -> Thermal:
+        dji_sdk_version = 'dji_thermal_sdk_v1.4_20220929'
         if 'win' in sys.platform:
-            dirp_filename = 'plugins/dji_thermal_sdk_v1.1_20211029/windows/release_x64/libdirp.dll'
-            dirp_sub_filename = 'plugins/dji_thermal_sdk_v1.1_20211029/windows/release_x64/libv_dirp.dll'
-            iirp_filename = 'plugins/dji_thermal_sdk_v1.1_20211029/windows/release_x64/libv_iirp.dll'
+            dirp_filename = f'plugins/{dji_sdk_version}/windows/release_x64/libdirp.dll'
+            dirp_sub_filename = f'plugins/{dji_sdk_version}/windows/release_x64/libv_dirp.dll'
+            iirp_filename = f'plugins/{dji_sdk_version}/windows/release_x64/libv_iirp.dll'
         else:
-            dirp_filename = 'plugins/dji_thermal_sdk_v1.1_20211029/linux/release_x64/libdirp.so'
-            dirp_sub_filename = 'plugins/dji_thermal_sdk_v1.1_20211029/linux/release_x64/libv_dirp.so'
-            iirp_filename = 'plugins/dji_thermal_sdk_v1.1_20211029/linux/release_x64/libv_iirp.so'
+            dirp_filename = f'plugins/{dji_sdk_version}/linux/release_x64/libdirp.so'
+            dirp_sub_filename = f'plugins/{dji_sdk_version}/linux/release_x64/libv_dirp.so'
+            iirp_filename = f'plugins/{dji_sdk_version}/linux/release_x64/libv_iirp.so'
         if 'win' in sys.platform:
             exif_filename = 'plugins/exiftool-12.35.exe'
         else:
@@ -105,6 +106,10 @@ class TestThermal(unittest.TestCase):
             'images/M2EA/DJI_0003_R.JPG',
             'images/M2EA/DJI_0004_R.JPG',
             'images/M2EA/DJI_0005_R.JPG',
+
+            'images/H20N/DJI_0001_R.JPG',
+            'images/M3T/DJI_0001_R.JPG',
+            'images/M30T/DJI_0001_R.JPG',
         ]:
             temperature = thermal.parse_dirp2(image_filename=image_filename, m2ea_mode=True)
             assert isinstance(temperature, np.ndarray)

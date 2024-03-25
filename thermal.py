@@ -745,10 +745,11 @@ class Thermal:
             image_filename: str, relative path of R-JPEG image
             image_height: float, image height
             image_width: float, image width
-            object_distance: float,
-            relative_humidity: float,
-            emissivity: float,
-            reflected_apparent_temperature: float,
+            object_distance: float, The distance to the target. Value range is [1~25] meters.
+            relative_humidity: float, The relative humidity of the environment. Value range is [20~100] percent. Defualt value is 70%.
+            emissivity: float, How strongly the target surface is emitting energy as thermal radiation. Value range is [0.10~1.00].
+            reflected_apparent_temperature: float, Reflected temperature in Celsius. The surface of the target that is measured could reflect the energy radiated by the surrounding objects. Value range is [-40.0~500.0]
+            m2ea_mode: bool
 
         Returns:
             np.ndarray: temperature array

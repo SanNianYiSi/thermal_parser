@@ -56,7 +56,12 @@ assert isinstance(temperature, np.ndarray)
 * FLIR B60
 * FLIR E40
 * FLIR T640
+
+Set `m2ea_mode=True` when parsing the following image. 
 * M2EA / MAVIC2-ENTERPRISE-ADVANCED / "御"2 行业进阶版
+* DJI H20T
+- DJI M3T
+- DJI M30T
 
 ## References
 
