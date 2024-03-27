@@ -6,9 +6,8 @@ Parser infrared camera data as `NumPy` data.
 
 ## Usage
 
-* Install
-  * Clone this respository and `cd thermal_parser`. Run `pip setup.py install` in the console.
-  * Or just `pip install thermal_parser`
+* Clone this respository and `cd thermal_parser`. 
+* Run `pip setup.py install` in the console.
 * Try the following code:
 
 **win x64, x86 & linux x64, x86**
@@ -41,9 +40,9 @@ DJI R-JPEG Camera Model
 
 DJI R-JPEG Camera Model DTAT3.0
 
-* M2EA / MAVIC2-ENTERPRISE-ADVANCED / "御"2 行业进阶版
-* DJI H20N / 
-* DJI M3T
+* DJI M2EA / DJI MAVIC2-ENTERPRISE-ADVANCED / "御"2 行业进阶版
+* DJI H20N
+* DJI M3T / DJI MAVIC3
 * DJI M30T
 
 ## References
