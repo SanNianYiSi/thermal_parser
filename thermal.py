@@ -355,13 +355,18 @@ class Thermal:
     DJI_ZH20T = 'ZH20T'
     DJI_XTS = 'XT S'
     DJI_XTR = 'FLIR'
-    DJI_M2EA = 'MAVIC2-ENTERPRISE-ADVANCED'
+
     FLIR_B60 = 'Flir b60'
     FLIR_E40 = 'FLIR E40'
     FLIR_T640 = 'FLIR T640'
     FLIR = 'FLIR'
     FLIR_DEFAULT = '*'
     FLIR_AX8 = 'FLIR AX8'
+
+    DJI_M2EA = 'MAVIC2-ENTERPRISE-ADVANCED'
+    DJI_H20N = 'ZH20N'
+    DJI_M3T = 'M3T'
+    DJI_M30T = 'M30T'
 
     # dirp_ret_code_e
     DIRP_SUCCESS = 0  # 0: Success (no error)
@@ -383,19 +388,19 @@ class Thermal:
 
     def __init__(
             self,
-            dirp_filename: str,
-            dirp_sub_filename: str,
-            iirp_filename: str,
-            exif_filename: Optional[str] = None,
+            filepath_dirp: str,
+            filepath_dirp_sub: str,
+            filepath_iirp: str,
+            filepath_exif: Optional[str] = None,
             dtype=np.float32,
     ):
         """
         Load exiftool/DJI SDK.
 
         Args:
-            dirp_filename: str, DJI SDK file path.
-            dirp_sub_filename: str, DJI SDK file path.
-            iirp_filename: str, DJI SDK file path.
+            filepath_dirp: str, DJI SDK file path.
+            filepath_dirp_sub: str, DJI SDK file path.
+            filepath_iirp: str, DJI SDK file path.
             dtype: np.float32 or np.int16.
 
         Raises
@@ -412,35 +417,36 @@ class Thermal:
             * DJI SDK cannot be registered properly
 
         """
-        assert path.exists(dirp_filename)
+        assert path.exists(filepath_dirp)
         assert dtype.__name__ in {np.float32.__name__, np.int16.__name__}
 
-        self._dirp_filename = dirp_filename
-        self._dirp_sub_filename = dirp_sub_filename
-        self._iirp_filename = iirp_filename
+        self._filepath_dirp = filepath_dirp
+        self._filepath_dirp_sub = filepath_dirp_sub
+        self._filepath_iirp = filepath_iirp
         self._dtype = dtype
         self._support_camera_model = {
             Thermal.DJI_XT2, Thermal.DJI_ZH20T, Thermal.DJI_XTS, Thermal.DJI_XTR,
             Thermal.FLIR_B60, Thermal.FLIR_E40, Thermal.FLIR_T640,
             Thermal.FLIR, Thermal.FLIR_DEFAULT, Thermal.FLIR_AX8,
             Thermal.DJI_M2EA,
+            Thermal.DJI_H20N, Thermal.DJI_M3T, Thermal.DJI_M30T,
         }
         if 'win' in sys.platform:
-            assert isinstance(exif_filename, str)
-            current_abs_dirname = path.dirname(os.path.abspath(__file__))
-            self._exiftool_filename = path.join(current_abs_dirname, exif_filename)
-            assert path.exists(self._exiftool_filename)
+            assert isinstance(filepath_exif, str)
+            dirname_current_abs = path.dirname(os.path.abspath(__file__))
+            self._filepath_exiftool = path.join(dirname_current_abs, filepath_exif)
+            assert path.exists(self._filepath_exiftool)
         elif 'linux' in sys.platform:
             # TODO: check install
-            self._exiftool_filename = 'exiftool'
+            self._filepath_exiftool = 'exiftool'
         else:
             raise NotImplementedError(
                 'Operating system not supported. Current Operation system is {}'.format(sys.platform))
 
         try:
-            self._dirp_dll = CDLL(self._dirp_filename)
-            self._dirp_sub_dll = CDLL(self._dirp_sub_filename)
-            self._iirp_dll = CDLL(self._iirp_filename)
+            self._dll_dirp = CDLL(self._filepath_dirp)
+            self._dll_dirp_sub = CDLL(self._filepath_dirp_sub)
+            self._dll_iirp = CDLL(self._filepath_iirp)
         except OSError:
             print('Unable to load the system C library')
             sys.exit()
@@ -456,7 +462,7 @@ class Thermal:
         # ret_code = self._dirp_register_app(cast(create_string_buffer(b'DJI_TSDK'), c_char_p))
         # assert ret_code == Thermal.DIRP_SUCCESS
 
-        self._dirp_set_verbose_level = self._dirp_dll.dirp_set_verbose_level
+        self._dirp_set_verbose_level = self._dll_dirp.dirp_set_verbose_level
         self._dirp_set_verbose_level.argtypes = [c_int]
         self._dirp_set_verbose_level(DIRP_VERBOSE_LEVEL_NONE)
 
@@ -464,55 +470,55 @@ class Thermal:
         # The R-JPEG binary data buffer must remain valid until the handle is destroyed.
         # The DIRP API library will create some alloc buffers for inner usage.
         # So the application should reserve enough stack size for the library.
-        self._dirp_create_from_rjpeg = self._dirp_dll.dirp_create_from_rjpeg
+        self._dirp_create_from_rjpeg = self._dll_dirp.dirp_create_from_rjpeg
         self._dirp_create_from_rjpeg.argtypes = [POINTER(c_uint8), c_int32, POINTER(DIRP_HANDLE)]
         self._dirp_create_from_rjpeg.restype = c_int32
 
         # Destroy the DIRP handle.
-        self._dirp_destroy = self._dirp_dll.dirp_destroy
+        self._dirp_destroy = self._dll_dirp.dirp_destroy
         self._dirp_destroy.argtypes = [DIRP_HANDLE]
         self._dirp_destroy.restype = c_int32
 
-        self._dirp_get_rjpeg_version = self._dirp_dll.dirp_get_rjpeg_version
+        self._dirp_get_rjpeg_version = self._dll_dirp.dirp_get_rjpeg_version
         self._dirp_get_rjpeg_version.argtypes = [DIRP_HANDLE, POINTER(dirp_rjpeg_version_t)]
         self._dirp_get_rjpeg_version.restype = c_int32
 
-        self._dirp_get_rjpeg_resolution = self._dirp_dll.dirp_get_rjpeg_resolution
+        self._dirp_get_rjpeg_resolution = self._dll_dirp.dirp_get_rjpeg_resolution
         self._dirp_get_rjpeg_resolution.argtypes = [DIRP_HANDLE, POINTER(dirp_resolotion_t)]
         self._dirp_get_rjpeg_resolution.restype = c_int32
 
         # Get orignial/custom temperature measurement parameters.
-        self._dirp_get_measurement_params = self._dirp_dll.dirp_get_measurement_params
+        self._dirp_get_measurement_params = self._dll_dirp.dirp_get_measurement_params
         self._dirp_get_measurement_params.argtypes = [DIRP_HANDLE, POINTER(dirp_measurement_params_t)]
         self._dirp_get_measurement_params.restype = c_int32
 
         # Set custom temperature measurement parameters.
-        self._dirp_set_measurement_params = self._dirp_dll.dirp_set_measurement_params
+        self._dirp_set_measurement_params = self._dll_dirp.dirp_set_measurement_params
         self._dirp_set_measurement_params.argtypes = [DIRP_HANDLE, POINTER(dirp_measurement_params_t)]
         self._dirp_set_measurement_params.restype = c_int32
 
         # Measure temperature of whole thermal image with RAW data in R-JPEG.
         # Each INT16 pixel value represents ten times the temperature value in Celsius. In other words,
         # each LSB represents 0.1 degrees Celsius.
-        self._dirp_measure = self._dirp_dll.dirp_measure
+        self._dirp_measure = self._dll_dirp.dirp_measure
         self._dirp_measure.argtypes = [DIRP_HANDLE, POINTER(c_int16), c_int32]
         self._dirp_measure.restype = c_int32
 
         # Measure temperature of whole thermal image with RAW data in R-JPEG.
         # Each float32 pixel value represents the real temperature in Celsius.
-        self._dirp_measure_ex = self._dirp_dll.dirp_measure_ex
+        self._dirp_measure_ex = self._dll_dirp.dirp_measure_ex
         self._dirp_measure_ex.argtypes = [DIRP_HANDLE, POINTER(c_float), c_int32]
         self._dirp_measure_ex.restype = c_int32
 
-    def __call__(
+    def parse(
             self,
-            image_filename: str,
+            filepath_image: str,
     ) -> np.ndarray:
         """
         Parser infrared camera data as `NumPy` data.
 
         Args:
-            image_filename: str, relative path of R-JPEG image
+            filepath_image: str, relative path of R-JPEG image
 
         Returns:
             np.ndarray: temperature array
@@ -526,13 +532,13 @@ class Thermal:
                 * unsupported camera type
         """
 
-        assert isinstance(image_filename, str) and path.exists(image_filename), 'Check if the file exists:{}.'.format(image_filename)
-        meta = subprocess.Popen([self._exiftool_filename, image_filename], stdout=subprocess.PIPE).communicate()[0]
+        assert isinstance(filepath_image, str) and path.exists(filepath_image), 'Check if the file exists:{}.'.format(filepath_image)
+        meta = subprocess.Popen([self._filepath_exiftool, filepath_image], stdout=subprocess.PIPE).communicate()[0]
         meta = meta.decode('utf8').replace('\r', '')
         meta_json = dict([
             (field.split(':')[0].strip(), field.split(':')[1].strip()) for field in meta.split('\n') if ':' in field
         ])
-        assert 'Camera Model Name' in meta_json, '{} `Camera Model Name` field is missing'.format(image_filename)
+        assert 'Camera Model Name' in meta_json, '{} `Camera Model Name` field is missing'.format(filepath_image)
         camera_model = meta_json['Camera Model Name']
         assert camera_model in self._support_camera_model or Thermal.FLIR in camera_model, 'Unsupported camera type:{}'.format(camera_model)
         if camera_model in {
@@ -569,13 +575,17 @@ class Thermal:
                 if key in meta_json:
                     kwargs[name] = float(meta_json[key][:-2])
             return self.parse_flir(
-                image_filename=image_filename,
+                filepath_image=filepath_image,
                 **kwargs,
             )
         elif camera_model in {
             Thermal.DJI_ZH20T,
             Thermal.DJI_XTS,
+
             Thermal.DJI_M2EA,
+            Thermal.DJI_H20N,
+            Thermal.DJI_M3T,
+            Thermal.DJI_M30T,
         }:
             for key in ['Image Height', 'Image Width']:
                 assert key in meta_json, 'The `{}` field is missing'.format(key)
@@ -585,20 +595,27 @@ class Thermal:
                 ('emissivity', 'Emissivity'),
                 ('reflected_apparent_temperature', 'Reflection'),
             ] if key in meta_json)
-            kwargs['image_height'] = int(meta_json['Image Height'])
-            kwargs['image_width'] = int(meta_json['Image Width'])
+            # NOTE: the jpeg image of M30T has a fixed size of 640x512
+            if camera_model != Thermal.DJI_M30T:
+                kwargs['image_height'] = int(meta_json['Image Height'])
+                kwargs['image_width'] = int(meta_json['Image Width'])
             if 'emissivity' in kwargs:
                 kwargs['emissivity'] /= 100
-            if camera_model == Thermal.DJI_M2EA:
+            if camera_model in [
+                Thermal.DJI_M2EA,
+                Thermal.DJI_H20N,
+                Thermal.DJI_M3T,
+                Thermal.DJI_M30T,
+            ]:
                 kwargs['m2ea_mode'] = True,
             return self.parse_dirp2(
-                image_filename=image_filename,
+                filepath_image=filepath_image,
                 **kwargs,
             )
 
     def parse_flir(
             self,
-            image_filename: str,
+            filepath_image: str,
             # params
             emissivity: float = 1.0,
             object_distance: float = 1.0,
@@ -626,7 +643,7 @@ class Thermal:
         Equations to convert to temperature see http://130.15.24.88/exiftool/forum/index.php/topic,4898.60.html or https://github.com/gtatters/Thermimage/blob/master/R/raw2temp.R
 
         Args:
-            image_filename: str, relative path of R-JPEG image
+            filepath_image: str, relative path of R-JPEG image
             emissivity: float, E: Emissivity - default 1, should be ~0.95 to 0.97 depending on source
             object_distance: float, OD: Object distance in metres
             atmospheric_temperature: float, ATemp: atmospheric temperature for tranmission loss - one value from FLIR file (oC) - default = RTemp
@@ -655,7 +672,7 @@ class Thermal:
             * from https://github.com/aloisklink/flirextractor/blob/1fc759808c747ad5562a9ddb3cd75c4def8a3f69/flirextractor/raw_temp_to_celcius.py
         """
         thermal_img_bytes = subprocess.check_output([
-            self._exiftool_filename, '-RawThermalImage', '-b', image_filename
+            self._filepath_exiftool, '-RawThermalImage', '-b', filepath_image
         ])
 
         thermal_img_stream = BytesIO(thermal_img_bytes)
@@ -666,7 +683,7 @@ class Thermal:
         if img_format == 'TIFF':
             raw = np.array(thermal_img)
         elif img_format == 'PNG':
-            raw = unpack(image_filename)
+            raw = unpack(filepath_image)
         else:
             raise ValueError
 
@@ -721,14 +738,14 @@ class Thermal:
         )
         val_to_log = planck_r1 / (planck_r2 * (raw_obj + planck_o)) + planck_f
         if any(val_to_log.ravel() < 0):
-            raise ValueError('Image seems to be corrupted:{}'.format(image_filename))
+            raise ValueError('Image seems to be corrupted:{}'.format(filepath_image))
         # temperature from radiance
         temperature = planck_b / np.log(val_to_log) - ABSOLUTE_ZERO
         return np.array(temperature, self._dtype)
 
     def parse_dirp2(
             self,
-            image_filename: str,
+            filepath_image: str,
             image_height: int = 512,
             image_width: int = 640,
             object_distance: float = 5.0,
@@ -742,7 +759,7 @@ class Thermal:
         `dirp2` means `DJI IR Processing Version 2nd`.
 
         Args:
-            image_filename: str, relative path of R-JPEG image
+            filepath_image: str, relative path of R-JPEG image
             image_height: float, image height
             image_width: float, image width
             object_distance: float, The distance to the target. Value range is [1~25] meters.
@@ -757,7 +774,7 @@ class Thermal:
         References:
             * [DJI Thermal SDK](https://www.dji.com/cn/downloads/softwares/dji-thermal-sdk)
         """
-        with open(image_filename, 'rb') as file:
+        with open(filepath_image, 'rb') as file:
             raw = file.read()
             raw_size = c_int32(len(raw))
             raw_c_uint8 = cast(raw, POINTER(c_uint8))
@@ -767,7 +784,7 @@ class Thermal:
         rjpeg_resolotion = dirp_resolotion_t()
 
         return_status = self._dirp_create_from_rjpeg(raw_c_uint8, raw_size, handle)
-        assert return_status == Thermal.DIRP_SUCCESS, 'dirp_create_from_rjpeg error {}:{}'.format(image_filename, return_status)
+        assert return_status == Thermal.DIRP_SUCCESS, 'dirp_create_from_rjpeg error {}:{}'.format(filepath_image, return_status)
         assert self._dirp_get_rjpeg_version(handle, rjpeg_version) == Thermal.DIRP_SUCCESS
         assert self._dirp_get_rjpeg_resolution(handle, rjpeg_resolotion) == Thermal.DIRP_SUCCESS
 
@@ -775,7 +792,7 @@ class Thermal:
             params = dirp_measurement_params_t()
             params_point = pointer(params)
             return_status = self._dirp_get_measurement_params(handle, params_point)
-            assert return_status == Thermal.DIRP_SUCCESS, 'dirp_get_measurement_params error {}:{}'.format(image_filename, return_status)
+            assert return_status == Thermal.DIRP_SUCCESS, 'dirp_get_measurement_params error {}:{}'.format(filepath_image, return_status)
 
             if isinstance(object_distance, (float, int)):
                 params.distance = object_distance
@@ -787,7 +804,7 @@ class Thermal:
                 params.reflection = reflected_apparent_temperature
 
             return_status = self._dirp_set_measurement_params(handle, params)
-            assert return_status == Thermal.DIRP_SUCCESS, 'dirp_set_measurement_params error {}:{}'.format(image_filename, return_status)
+            assert return_status == Thermal.DIRP_SUCCESS, 'dirp_set_measurement_params error {}:{}'.format(filepath_image, return_status)
 
         if self._dtype.__name__ == np.float32.__name__:
             data = np.zeros(image_width * image_height, dtype=np.float32)
