@@ -14,13 +14,13 @@ The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 """
 
-import sys
 import os
-import os.path as path
+import platform
 import subprocess
+import sys
 from ctypes import *
 from io import BufferedIOBase, BytesIO
-from typing import BinaryIO, Dict, Optional, Tuple, Union
+from typing import BinaryIO, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 from PIL import Image
@@ -34,6 +34,48 @@ DIRP_VERBOSE_LEVEL_NONE = 0  # 0: Print none
 DIRP_VERBOSE_LEVEL_DEBUG = 1  # 1: Print debug log
 DIRP_VERBOSE_LEVEL_DETAIL = 2  # 2: Print all log
 DIRP_VERBOSE_LEVEL_NUM = 3  # 3: Total number
+
+
+def get_default_filepaths() -> List[str]:
+    folder_plugin = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'plugins')
+    system = platform.system()
+    architecture = platform.architecture()[0]
+    if system == "Windows":
+        if architecture == "32bit":
+            return [os.path.join(folder_plugin, v) for v in [
+                'dji_thermal_sdk_v1.4_20220929/windows/release_x86/libdirp.dll',
+                'dji_thermal_sdk_v1.4_20220929/windows/release_x86/libv_dirp.dll',
+                'dji_thermal_sdk_v1.4_20220929/windows/release_x86/libv_iirp.dll',
+                'exiftool-12.35.exe',
+            ]]
+        elif architecture == "64bit":
+            return [os.path.join(folder_plugin, v) for v in [
+                'dji_thermal_sdk_v1.4_20220929/windows/release_x64/libdirp.dll',
+                'dji_thermal_sdk_v1.4_20220929/windows/release_x64/libv_dirp.dll',
+                'dji_thermal_sdk_v1.4_20220929/windows/release_x64/libv_iirp.dll',
+                'exiftool-12.35.exe',
+            ]]
+    elif system == "Linux":
+        if architecture == "32bit":
+            return [
+                *[os.path.join(folder_plugin, v) for v in [
+                    'dji_thermal_sdk_v1.4_20220929/windows/release_x86/libdirp.so',
+                    'dji_thermal_sdk_v1.4_20220929/windows/release_x86/libv_dirp.so',
+                    'dji_thermal_sdk_v1.4_20220929/windows/release_x86/libv_iirp.so',
+                ]],
+                'exiftool'
+            ]
+        elif architecture == "64bit":
+            return [
+                *[os.path.join(folder_plugin, v) for v in [
+                    'dji_thermal_sdk_v1.4_20220929/windows/release_x64/libdirp.so',
+                    'dji_thermal_sdk_v1.4_20220929/windows/release_x64/libv_dirp.so',
+                    'dji_thermal_sdk_v1.4_20220929/windows/release_x64/libv_iirp.so',
+                ]],
+                'exiftool'
+            ]
+
+    raise NotImplementedError(f'currently not supported for running on this platform {system}:{architecture}')
 
 
 class dirp_rjpeg_version_t(Structure):
@@ -388,20 +430,13 @@ class Thermal:
 
     def __init__(
             self,
-            filepath_dirp: str,
-            filepath_dirp_sub: str,
-            filepath_iirp: str,
-            filepath_exif: Optional[str] = None,
             dtype=np.float32,
     ):
         """
         Load exiftool/DJI SDK.
 
         Args:
-            filepath_dirp: str, DJI SDK file path.
-            filepath_dirp_sub: str, DJI SDK file path.
-            filepath_iirp: str, DJI SDK file path.
-            dtype: np.float32 or np.int16.
+            dtype: np.float32 or np.int16. parse R-JPEG files in the format specified by dtype
 
         Raises
         ------
@@ -417,12 +452,8 @@ class Thermal:
             * DJI SDK cannot be registered properly
 
         """
-        assert path.exists(filepath_dirp)
         assert dtype.__name__ in {np.float32.__name__, np.int16.__name__}
 
-        self._filepath_dirp = filepath_dirp
-        self._filepath_dirp_sub = filepath_dirp_sub
-        self._filepath_iirp = filepath_iirp
         self._dtype = dtype
         self._support_camera_model = {
             Thermal.DJI_XT2, Thermal.DJI_ZH20T, Thermal.DJI_XTS, Thermal.DJI_XTR,
@@ -431,17 +462,13 @@ class Thermal:
             Thermal.DJI_M2EA,
             Thermal.DJI_H20N, Thermal.DJI_M3T, Thermal.DJI_M30T,
         }
-        if 'win' in sys.platform:
-            assert isinstance(filepath_exif, str)
-            dirname_current_abs = path.dirname(os.path.abspath(__file__))
-            self._filepath_exiftool = path.join(dirname_current_abs, filepath_exif)
-            assert path.exists(self._filepath_exiftool)
-        elif 'linux' in sys.platform:
-            # TODO: check install
-            self._filepath_exiftool = 'exiftool'
-        else:
-            raise NotImplementedError(
-                'Operating system not supported. Current Operation system is {}'.format(sys.platform))
+
+        (
+            self._filepath_dirp,
+            self._filepath_dirp_sub,
+            self._filepath_iirp,
+            self._filepath_exiftool,
+        ) = get_default_filepaths()
 
         try:
             self._dll_dirp = CDLL(self._filepath_dirp)
@@ -532,7 +559,7 @@ class Thermal:
                 * unsupported camera type
         """
 
-        assert isinstance(filepath_image, str) and path.exists(filepath_image), 'Check if the file exists:{}.'.format(filepath_image)
+        assert isinstance(filepath_image, str) and os.path.exists(filepath_image), 'Check if the file exists:{}.'.format(filepath_image)
         meta = subprocess.Popen([self._filepath_exiftool, filepath_image], stdout=subprocess.PIPE).communicate()[0]
         meta = meta.decode('utf8').replace('\r', '')
         meta_json = dict([
