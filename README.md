@@ -20,13 +20,13 @@ import numpy as np
 from thermal import Thermal
 
 thermal = Thermal(
-    dirp_filename='plugins/dji_thermal_sdk_v1.1_20211029/windows/release_x64/libdirp.dll',
-    dirp_sub_filename='plugins/dji_thermal_sdk_v1.1_20211029/windows/release_x64/libv_dirp.dll',
-    iirp_filename='plugins/dji_thermal_sdk_v1.1_20211029/windows/release_x64/libv_iirp.dll',
-    exif_filename='plugins/exiftool-12.35.exe',
+    filepath_dirp='plugins/dji_thermal_sdk_v1.4_20220929/windows/release_x64/libdirp.dll',
+    filepath_dirp_sub='plugins/dji_thermal_sdk_v1.4_20220929/windows/release_x64/libv_dirp.dll',
+    filepath_iirp='plugins/dji_thermal_sdk_v1.4_20220929/windows/release_x64/libv_iirp.dll',
+    filepath_exif='plugins/exiftool-12.35.exe',
     dtype=np.float32,
 )
-temperature = thermal.parse_dirp2(image_filename='images/DJI_H20T.jpg')
+temperature = thermal.parse(filepath_image='images/DJI_H20T.jpg')
 assert isinstance(temperature, np.ndarray)
 ```
 
@@ -37,13 +37,13 @@ import numpy as np
 from thermal import Thermal
 
 thermal = Thermal(
-    dirp_filename='plugins/dji_thermal_sdk_v1.1_20211029/linux/release_x64/libdirp.so',
-    dirp_sub_filename='plugins/dji_thermal_sdk_v1.1_20211029/linux/release_x64/libv_dirp.so',
-    iirp_filename='plugins/dji_thermal_sdk_v1.1_20211029/linux/release_x64/libv_iirp.so',
-    exif_filename=None,
+    filepath_dirp='plugins/dji_thermal_sdk_v1.4_20220929/linux/release_x64/libdirp.so',
+    filepath_dirp_sub='plugins/dji_thermal_sdk_v1.4_20220929/linux/release_x64/libv_dirp.so',
+    filepath_iirp='plugins/dji_thermal_sdk_v1.4_20220929/linux/release_x64/libv_iirp.so',
+    filepath_exif=None,
     dtype=np.float32,
 )
-temperature = thermal.parse_dirp2(image_filename='images/DJI_H20T.jpg')
+temperature = thermal.parse(filepath_image='images/DJI_H20T.jpg')
 assert isinstance(temperature, np.ndarray)
 ```
 
