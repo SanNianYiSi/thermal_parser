@@ -6,62 +6,43 @@ Parser infrared camera data as `NumPy` data.
 
 ## Usage
 
-* Clone this respository and `cd thermal_parser`.
-* Run `pip install -r requirements.txt` in the console
-* If you run this project code on Linux, make sure [exiftool](https://exiftool.org/install.html) is installed first or run `sudo apt-get install libimage-exiftool-perl` in the console to install [exiftool](https://exiftool.org/install.html).
-* Copy `thermal.py` file to project directory.
-* Copy `plugins` folder to same directory.
+* Install
+  * Clone this respository and `cd thermal_parser`. Run `pip setup.py install` in the console.
+  * Or just `pip install thermal_parser`
 * Try the following code:
 
-**win 64**
+**win x64, x86 & linux x64, x86**
 
 ```python
 import numpy as np
-from thermal import Thermal
+from thermal_parser import Thermal
 
-thermal = Thermal(
-    filepath_dirp='plugins/dji_thermal_sdk_v1.4_20220929/windows/release_x64/libdirp.dll',
-    filepath_dirp_sub='plugins/dji_thermal_sdk_v1.4_20220929/windows/release_x64/libv_dirp.dll',
-    filepath_iirp='plugins/dji_thermal_sdk_v1.4_20220929/windows/release_x64/libv_iirp.dll',
-    filepath_exif='plugins/exiftool-12.35.exe',
-    dtype=np.float32,
-)
-temperature = thermal.parse(filepath_image='images/DJI_H20T.jpg')
-assert isinstance(temperature, np.ndarray)
-```
-
-**linux**
-
-```python
-import numpy as np
-from thermal import Thermal
-
-thermal = Thermal(
-    filepath_dirp='plugins/dji_thermal_sdk_v1.4_20220929/linux/release_x64/libdirp.so',
-    filepath_dirp_sub='plugins/dji_thermal_sdk_v1.4_20220929/linux/release_x64/libv_dirp.so',
-    filepath_iirp='plugins/dji_thermal_sdk_v1.4_20220929/linux/release_x64/libv_iirp.so',
-    filepath_exif=None,
-    dtype=np.float32,
-)
+thermal = Thermal(dtype=np.float32)
 temperature = thermal.parse(filepath_image='images/DJI_H20T.jpg')
 assert isinstance(temperature, np.ndarray)
 ```
 
 ## Supported IR Camera
 
-* DJI H20T
-* DJI XT2
-* DJI XTR
-* DJI XTS
+FLIR R-JPEG Camera Model
+
 * FLIR
 * FLIR AX8
 * FLIR B60
 * FLIR E40
 * FLIR T640
 
-Set `m2ea_mode=True` when parsing the following image. 
+DJI R-JPEG Camera Model
+
+* DJI H20T
+* DJI XT2
+* DJI XTR
+* DJI XTS
+
+DJI R-JPEG Camera Model DTAT3.0
+
 * M2EA / MAVIC2-ENTERPRISE-ADVANCED / "御"2 行业进阶版
-* DJI H20N
+* DJI H20N / 
 * DJI M3T
 * DJI M30T
 
