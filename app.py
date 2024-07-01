@@ -21,3 +21,16 @@ max_temp = np.max(temperature)
 
 print(f"Min temperature: {min_temp}")
 print(f"Max temperature: {max_temp}")
+print(f"Shape: {temperature.shape}")
+
+# Specify the pixel coordinates
+x = 639  # replace with your desired x-coordinate
+y = 0  # replace with your desired y-coordinate
+
+# Check if the coordinates are within the valid range
+if 0 <= y < 512 and 0 <= x < 640:
+    # Get the temperature at the specified pixel
+    pixel_temp = temperature[y, x]
+    print(f"Temperature at pixel ({x}, {y}): {pixel_temp}")
+else:
+    print(f"Pixel coordinates ({x}, {y}) are out of bounds.")
