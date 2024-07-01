@@ -1,0 +1,26 @@
+v1.5 (20240418)
+    Fix some memoryleak bug.
+    Support M3TD/H30T product.
+    Optimize performance.
+
+v1.4 (20220628)
+    update libv_iirp/libv_girp for repairing some bug for DTAT3.0.
+    Released to DTAT3.0
+    M2EA: M2EA's visible photo return error
+
+v1.3 (20220216)
+    New: H20N, M30T
+    Fix libv_* libraries search path issue for Linux.
+    M2EA: Fix the error caused by incorrect measurement parameter configuration.
+
+v1.2 (20211209)
+    Fix the wrong pixel value at the end of the image.
+    M2EA: Fix crash issue caused by negative temperature.
+
+v1.1 (20211029)
+    New: M2EA
+    Refactor the processing procedure of TSDK library.
+
+v1.0 (20201110)
+    First version.
+    New: H20T, XTS

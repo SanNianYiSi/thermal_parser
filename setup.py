@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 def format_data_files():
     data_files = []
-    for root, _, filenames in os.walk('plugins/dji_thermal_sdk_v1.4_20220929'):
+    for root, _, filenames in os.walk('plugins/dji_thermal_sdk_v1.5_20220929'):
         filepaths = []
         for filename in filenames:
             if any(filename.endswith(v) for v in ['.dll', '.lib', '.so', '.ini', '.txt']):
