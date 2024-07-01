@@ -47,10 +47,12 @@ DJI R-JPEG Camera Model DTAT3.0
 
 ## References
 
-* [DJI Thermal SDK](https://www.dji.com/cn/downloads/softwares/dji-thermal-sdk) The DJI Thermal SDK enables you to process R-JPEG (Radiometric JPEG) images which were captured by DJI infrared camera products.
+* [DJI Thermal SDK](https://www.dji.com/cn/downloads/softwares/dji-thermal-sdk) The DJI Thermal SDK enables you to process R-JPEG (Radiometric JPEG) images which were captured by DJI infrared camera products. 
 * [Thermal Image Analysis](https://github.com/detecttechnologies/Thermal-Image-Analysis) A tool for analyzing and annotating thermal images.
 * [Base codes for Thermography](https://github.com/detecttechnologies/thermal_base) A python package for decoding and common processing for thermographs / thermograms
 * [thermography](https://github.com/cdeldon/thermography) This repository contains the implementation of a feasibility study for automatic detection of defected solar panel modules.
+* [TSDK (DJI Thermal SDK)](https://www.dji.com/global/downloads/softwares/dji-thermal-sdk)
+* [DJI Thermal Analysis Tool 3](https://www.dji.com/global/downloads/softwares/dji-dtat3)
 
 # Docker
 ```
