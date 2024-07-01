@@ -24,7 +24,7 @@ print(f"Max temperature: {max_temp}")
 print(f"Shape: {temperature.shape}")
 
 # Specify the pixel coordinates
-x = 639  # replace with your desired x-coordinate
+x = 640  # replace with your desired x-coordinate
 y = 0  # replace with your desired y-coordinate
 
 # Check if the coordinates are within the valid range

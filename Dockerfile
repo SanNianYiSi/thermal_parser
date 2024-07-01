@@ -20,6 +20,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the entire contents of the local directory to the working directory in the container
 COPY . .
 
+# Copy the .env file into the container
+COPY .env .env
+
 # Ensure that the necessary directories exist
 RUN mkdir -p plugins/dji_thermal_sdk_v1.5_20240507
 
