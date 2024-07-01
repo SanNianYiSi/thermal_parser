@@ -51,3 +51,18 @@ DJI R-JPEG Camera Model DTAT3.0
 * [Thermal Image Analysis](https://github.com/detecttechnologies/Thermal-Image-Analysis) A tool for analyzing and annotating thermal images.
 * [Base codes for Thermography](https://github.com/detecttechnologies/thermal_base) A python package for decoding and common processing for thermographs / thermograms
 * [thermography](https://github.com/cdeldon/thermography) This repository contains the implementation of a feasibility study for automatic detection of defected solar panel modules.
+
+# Docker
+```
+sudo docker build -t dji-thermal .
+
+mac
+sudo docker run --rm -it --name dji-thermal -v $(pwd):/usr/src/app dji-thermal:latest
+
+sudo docker run --rm -it --name dji-thermal -v $(pwd):/usr/src/app dji-thermal:latest python app.py
+
+
+windows
+sudo docker run --rm -it --name dji-thermal -v ${pwd}:/usr/src/app dji-thermal:latest
+
+```
