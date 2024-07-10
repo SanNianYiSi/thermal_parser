@@ -621,7 +621,7 @@ class Thermal:
                 ('object_distance', 'Object Distance'),
                 ('relative_humidity', 'Relative Humidity'),
                 ('emissivity', 'Emissivity'),
-                ('reflected_apparent_temperature', 'Reflection'),
+                ('reflected_apparent_temperature', 'Reflected Temperature'),
             ] if key in meta_json)
             # NOTE: the jpeg image of M30T has a fixed size of 640x512
             if camera_model != Thermal.DJI_M30T:
