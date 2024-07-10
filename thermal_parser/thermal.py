@@ -15,6 +15,7 @@ copies or substantial portions of the Software.
 """
 
 import os
+import re
 import platform
 import subprocess
 import sys
@@ -616,7 +617,7 @@ class Thermal:
         }:
             for key in ['Image Height', 'Image Width']:
                 assert key in meta_json, 'The `{}` field is missing'.format(key)
-            kwargs = dict((name, float(meta_json[key])) for name, key in [
+            kwargs = dict((name, float(re.findall(r'\d+\.\d+|\d+', meta_json[key])[0])) for name, key in [
                 ('object_distance', 'Object Distance'),
                 ('relative_humidity', 'Relative Humidity'),
                 ('emissivity', 'Emissivity'),
