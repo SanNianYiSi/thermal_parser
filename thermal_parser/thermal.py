@@ -59,18 +59,18 @@ def get_default_filepaths() -> List[str]:
         if architecture == "32bit":
             return [
                 *[os.path.join(folder_plugin, v) for v in [
-                    'dji_thermal_sdk_v1.4_20220929/windows/release_x86/libdirp.so',
-                    'dji_thermal_sdk_v1.4_20220929/windows/release_x86/libv_dirp.so',
-                    'dji_thermal_sdk_v1.4_20220929/windows/release_x86/libv_iirp.so',
+                    'dji_thermal_sdk_v1.4_20220929/linux/release_x86/libdirp.so',
+                    'dji_thermal_sdk_v1.4_20220929/linux/release_x86/libv_dirp.so',
+                    'dji_thermal_sdk_v1.4_20220929/linux/release_x86/libv_iirp.so',
                 ]],
                 'exiftool'
             ]
         elif architecture == "64bit":
             return [
                 *[os.path.join(folder_plugin, v) for v in [
-                    'dji_thermal_sdk_v1.4_20220929/windows/release_x64/libdirp.so',
-                    'dji_thermal_sdk_v1.4_20220929/windows/release_x64/libv_dirp.so',
-                    'dji_thermal_sdk_v1.4_20220929/windows/release_x64/libv_iirp.so',
+                    'dji_thermal_sdk_v1.4_20220929/linux/release_x64/libdirp.so',
+                    'dji_thermal_sdk_v1.4_20220929/linux/release_x64/libv_dirp.so',
+                    'dji_thermal_sdk_v1.4_20220929/linux/release_x64/libv_iirp.so',
                 ]],
                 'exiftool'
             ]

@@ -4,10 +4,10 @@ from setuptools import *
 
 def format_data_files():
     data_files = [
-        ('plugins', ['plugins\\exiftool-12.35.exe']),
+        ('plugins', [os.path.join('plugins', 'exiftool-12.35.exe')]),
     ]
     # 遍历目录中的所有文件和子目录
-    for root, _, filenames in os.walk('plugins\\dji_thermal_sdk_v1.4_20220929'):
+    for root, _, filenames in os.walk(os.path.join('plugins', 'dji_thermal_sdk_v1.4_20220929')):
         filepaths = []
         for filename in filenames:
             # 检查文件扩展名是否为.txt
