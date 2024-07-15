@@ -2,8 +2,11 @@ import os
 from setuptools import setup, find_packages
 
 def format_data_files():
-    data_files = []
-    for root, _, filenames in os.walk('plugins/dji_thermal_sdk_v1.5_20240507'):
+    data_files = [
+        ('plugins', [os.path.join('plugins', 'exiftool-12.35.exe')]),
+    ]
+    # 遍历目录中的所有文件和子目录
+    for root, _, filenames in os.walk(os.path.join('plugins', 'dji_thermal_sdk_v1.5_20240507')):
         filepaths = []
         for filename in filenames:
             if any(filename.endswith(v) for v in ['.dll', '.lib', '.so', '.ini', '.txt']):
