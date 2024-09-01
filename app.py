@@ -5,7 +5,7 @@ from thermal_parser import *
 thermal = Thermal(dtype=np.float32)
 
 # Parse the image to get the temperature array
-temperature = thermal.parse(filepath_image='datasets/ZH20T/DJI_20240430104041_0001_T.JPG')
+temperature = thermal.parse(filepath_image='images/M3T/DJI_0001_R.JPG')
 
 # Print the temperature array (optional, for debugging)
 print(temperature)
