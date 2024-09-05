@@ -51,9 +51,8 @@ def get_default_filepaths() -> List[str]:
     ]
     if system not in ("Windows", "Linux") or architecture not in ("x64", "x86"):
         raise NotImplementedError(f'currently not supported for running on this platform: {system} {architecture}')
-    
-    return *[os.path.join(folder_plugin, v) for v in files], exiftool
 
+    return *[os.path.join(folder_plugin, v) for v in files], exiftool
 
 
 class dirp_rjpeg_version_t(Structure):
@@ -599,8 +598,8 @@ class Thermal:
                 ('emissivity', 'Emissivity'),
                 ('reflected_apparent_temperature', 'Reflected Temperature'),
             ] if key in meta_json)
-            # NOTE: the jpeg image of M30T has a fixed size of 640x512
-            if camera_model != Thermal.DJI_M30T:
+            # NOTE: the jpeg image of M30T and M3T has a fixed size of 640x512
+            if camera_model not in (Thermal.DJI_M30T, Thermal.DJI_M3T):
                 kwargs['image_height'] = int(meta_json['Image Height'])
                 kwargs['image_width'] = int(meta_json['Image Width'])
             if 'emissivity' in kwargs:
