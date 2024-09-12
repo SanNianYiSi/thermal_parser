@@ -40,19 +40,43 @@ DIRP_VERBOSE_LEVEL_NUM = 3  # 3: Total number
 def get_default_filepaths() -> List[str]:
     folder_plugin = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'plugins')
     system = platform.system()
-    sdk = "dji_thermal_sdk_v1.5_20240507"
-    architecture = "x64" if platform.architecture()[0] == "64bit" else "x86"
-    extension = "so" if system == "Linux" else "dll"
-    exiftool = "exiftool" if system == "Linux" else f"{folder_plugin}/exiftool-12.35.exe"
-    files = [
-        f'{sdk}/{system.lower()}/release_{architecture}/libdirp.{extension}',
-        f'{sdk}/{system.lower()}/release_{architecture}/libv_dirp.{extension}',
-        f'{sdk}/{system.lower()}/release_{architecture}/libv_iirp.{extension}',
-    ]
-    if system not in ("Windows", "Linux") or architecture not in ("x64", "x86"):
-        raise NotImplementedError(f'currently not supported for running on this platform: {system} {architecture}')
-    
-    return *[os.path.join(folder_plugin, v) for v in files], exiftool
+    architecture = platform.architecture()[0]
+    if system == "Windows":
+        if architecture == "32bit":
+            return [os.path.join(folder_plugin, v) for v in [
+                'dji_thermal_sdk_v1.4_20220929/windows/release_x86/libdirp.dll',
+                'dji_thermal_sdk_v1.4_20220929/windows/release_x86/libv_dirp.dll',
+                'dji_thermal_sdk_v1.4_20220929/windows/release_x86/libv_iirp.dll',
+                'exiftool-12.35.exe',
+            ]]
+        elif architecture == "64bit":
+            return [os.path.join(folder_plugin, v) for v in [
+                'dji_thermal_sdk_v1.4_20220929/windows/release_x64/libdirp.dll',
+                'dji_thermal_sdk_v1.4_20220929/windows/release_x64/libv_dirp.dll',
+                'dji_thermal_sdk_v1.4_20220929/windows/release_x64/libv_iirp.dll',
+                'exiftool-12.35.exe',
+            ]]
+    elif system == "Linux":
+        if architecture == "32bit":
+            return [
+                *[os.path.join(folder_plugin, v) for v in [
+                    'dji_thermal_sdk_v1.4_20220929/linux/release_x86/libdirp.so',
+                    'dji_thermal_sdk_v1.4_20220929/linux/release_x86/libv_dirp.so',
+                    'dji_thermal_sdk_v1.4_20220929/linux/release_x86/libv_iirp.so',
+                ]],
+                'exiftool'
+            ]
+        elif architecture == "64bit":
+            return [
+                *[os.path.join(folder_plugin, v) for v in [
+                    'dji_thermal_sdk_v1.4_20220929/linux/release_x64/libdirp.so',
+                    'dji_thermal_sdk_v1.4_20220929/linux/release_x64/libv_dirp.so',
+                    'dji_thermal_sdk_v1.4_20220929/linux/release_x64/libv_iirp.so',
+                ]],
+                'exiftool'
+            ]
+
+    raise NotImplementedError(f'currently not supported for running on this platform {system}:{architecture}')
 
 
 
@@ -798,8 +822,7 @@ class Thermal:
             params = dirp_measurement_params_t()
             params_point = pointer(params)
             return_status = self._dirp_get_measurement_params(handle, params_point)
-            assert return_status == Thermal.DIRP_SUCCESS, f'dirp_get_measurement_params error {
-                filepath_image}:{return_status}'
+            assert return_status == Thermal.DIRP_SUCCESS, f'dirp_get_measurement_params error {filepath_image}:{return_status}'
 
             if isinstance(object_distance, (float, int)):
                 params.distance = object_distance
@@ -811,8 +834,7 @@ class Thermal:
                 params.reflection = reflected_apparent_temperature
 
             return_status = self._dirp_set_measurement_params(handle, params)
-            assert return_status == Thermal.DIRP_SUCCESS, f'dirp_set_measurement_params error {
-                filepath_image}:{return_status}'
+            assert return_status == Thermal.DIRP_SUCCESS, f'dirp_set_measurement_params error {filepath_image}:{return_status}'
 
         if self._dtype.__name__ == np.float32.__name__:
             data = np.zeros(image_width * image_height, dtype=np.float32)
