@@ -7,7 +7,7 @@ def format_data_files():
         ('plugins', [os.path.join('plugins', 'exiftool-12.35.exe')]),
     ]
     # Iterate through all files and subdirectories in a directory
-    for root, _, filenames in os.walk(os.path.join('plugins', 'dji_thermal_sdk_v1.5_20240507')):
+    for root, _, filenames in os.walk(os.path.join('plugins', 'dji_thermal_sdk_v1.4_20220929')):
         filepaths = []
         for filename in filenames:
             if any(filename.endswith(v) for v in ['.dll', '.lib', '.so', '.ini', '.txt']):
