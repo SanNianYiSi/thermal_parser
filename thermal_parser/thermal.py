@@ -40,7 +40,7 @@ DIRP_VERBOSE_LEVEL_NUM = 3  # 3: Total number
 def get_default_filepaths() -> List[str]:
     folder_plugin = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'plugins')
     system = platform.system()
-    sdk = "dji_thermal_sdk_v1.5_20240507"
+    sdk = "dji_thermal_sdk_v1.4_20220929"
     architecture = "x64" if platform.architecture()[0] == "64bit" else "x86"
     extension = "so" if system == "Linux" else "dll"
     exiftool = "exiftool" if system == "Linux" else f"{folder_plugin}/exiftool-12.35.exe"
@@ -798,8 +798,7 @@ class Thermal:
             params = dirp_measurement_params_t()
             params_point = pointer(params)
             return_status = self._dirp_get_measurement_params(handle, params_point)
-            assert return_status == Thermal.DIRP_SUCCESS, f'dirp_get_measurement_params error {
-                filepath_image}:{return_status}'
+            assert return_status == Thermal.DIRP_SUCCESS, f'dirp_get_measurement_params error {filepath_image}:{return_status}'
 
             if isinstance(object_distance, (float, int)):
                 params.distance = object_distance
@@ -811,8 +810,7 @@ class Thermal:
                 params.reflection = reflected_apparent_temperature
 
             return_status = self._dirp_set_measurement_params(handle, params)
-            assert return_status == Thermal.DIRP_SUCCESS, f'dirp_set_measurement_params error {
-                filepath_image}:{return_status}'
+            assert return_status == Thermal.DIRP_SUCCESS, f'dirp_set_measurement_params error {filepath_image}:{return_status}'
 
         if self._dtype.__name__ == np.float32.__name__:
             data = np.zeros(image_width * image_height, dtype=np.float32)
