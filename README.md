@@ -7,7 +7,7 @@ Parser infrared camera data as `NumPy` data.
 ## Usage
 
 * Clone this respository and `cd thermal_parser`. 
-* Run `python3 setup.py install` in the console.
+* Run `pip install .` in the console.
 * Try the following code:
 
 **win x64, x86 & linux x64, x86**
