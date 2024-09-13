@@ -19,9 +19,9 @@ def format_data_files():
 
 setup(
     name='thermal_parser',
-    version='20240826',
+    version='thread',
     description='FLIR/DJI IR Camera Data Parser, Python Version',
-    url='https://github.com/SanNianYiSi/thermal_parser',
+    url='https://github.com/roy-shudipto/thermal_parser.git',
     author='SanNianYiSi',
     author_email='CcoO296y@163.com',
     license='MIT Licence',
