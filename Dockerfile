@@ -24,7 +24,7 @@ COPY . .
 COPY .env .env
 
 # Ensure that the necessary directories exist
-RUN mkdir -p plugins/dji_thermal_sdk_v1.5_20240507
+RUN mkdir -p plugins/dji_thermal_sdk_v1.4_20220929
 
 # Copy the necessary plugin files into the container
 COPY plugins/ plugins/

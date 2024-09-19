@@ -7,7 +7,7 @@ def format_data_files():
         ('plugins', [os.path.join('plugins', 'exiftool-12.35.exe')]),
     ]
     # Iterate through all files and subdirectories in a directory
-    for root, _, filenames in os.walk(os.path.join('plugins', 'dji_thermal_sdk_v1.5_20240507')):
+    for root, _, filenames in os.walk(os.path.join('plugins', 'dji_thermal_sdk_v1.4_20220929')):
         filepaths = []
         for filename in filenames:
             if any(filename.endswith(v) for v in ['.dll', '.lib', '.so', '.ini', '.txt']):
@@ -19,9 +19,9 @@ def format_data_files():
 
 setup(
     name='thermal_parser',
-    version='20240826',
+    version='20240919',
     description='FLIR/DJI IR Camera Data Parser, Python Version',
-    url='https://github.com/SanNianYiSi/thermal_parser',
+    url='https://github.com/Airtonomy/thermal_parser',
     author='SanNianYiSi',
     author_email='CcoO296y@163.com',
     license='MIT Licence',
