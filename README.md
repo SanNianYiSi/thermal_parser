@@ -44,6 +44,7 @@ DJI R-JPEG Camera Model DTAT3.0
 * DJI H20N
 * DJI M3T / DJI MAVIC3
 * DJI M30T
+* DJI H30T
 
 ## References
 

@@ -384,6 +384,7 @@ class Thermal:
     DJI_H20N = 'ZH20N'
     DJI_M3T = 'M3T'
     DJI_M30T = 'M30T'
+    DJI_H30T = 'H30T'
 
     # dirp_ret_code_e
     DIRP_SUCCESS = 0  # 0: Success (no error)
@@ -435,7 +436,7 @@ class Thermal:
             Thermal.FLIR_B60, Thermal.FLIR_E40, Thermal.FLIR_T640,
             Thermal.FLIR, Thermal.FLIR_DEFAULT, Thermal.FLIR_AX8,
             Thermal.DJI_M2EA,
-            Thermal.DJI_H20N, Thermal.DJI_M3T, Thermal.DJI_M30T,
+            Thermal.DJI_H20N, Thermal.DJI_M3T, Thermal.DJI_M30T, Thermal.DJI_H30T
         }
 
         (
@@ -584,11 +585,11 @@ class Thermal:
         elif camera_model in {
             Thermal.DJI_ZH20T,
             Thermal.DJI_XTS,
-
             Thermal.DJI_M2EA,
             Thermal.DJI_H20N,
             Thermal.DJI_M3T,
             Thermal.DJI_M30T,
+            Thermal.DJI_H30T
         }:
             for key in ['Image Height', 'Image Width']:
                 assert key in meta_json, f'The `{key}` field is missing'
@@ -609,6 +610,7 @@ class Thermal:
                 Thermal.DJI_H20N,
                 Thermal.DJI_M3T,
                 Thermal.DJI_M30T,
+                Thermal.DJI_H30T
             ]:
                 kwargs['m2ea_mode'] = True,
             return self.parse_dirp2(
