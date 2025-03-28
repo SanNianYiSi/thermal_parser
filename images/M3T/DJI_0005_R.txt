@@ -1,0 +1,132 @@
+ExifTool Version Number         : 12.35
+File Name                       : DJI_0005_R.JPG
+Directory                       : ./images/M3T
+File Size                       : 1192 KiB
+File Modification Date/Time     : 2022:09:29 04:47:04+08:00
+File Access Date/Time           : 2024:03:25 08:54:59+08:00
+File Creation Date/Time         : 2024:03:25 08:38:15+08:00
+File Permissions                : -rw-rw-rw-
+File Type                       : JPEG
+File Type Extension             : jpg
+MIME Type                       : image/jpeg
+Exif Byte Order                 : Little-endian (Intel, II)
+Image Description               : HotIron
+Make                            : DJI
+Camera Model Name               : M3T
+Orientation                     : Horizontal (normal)
+X Resolution                    : 72
+Y Resolution                    : 72
+Resolution Unit                 : inches
+Software                        : 10.00.00.08
+Modify Date                     : 2022:06:30 20:44:34
+Y Cb Cr Positioning             : Centered
+F Number                        : 1.0
+Exif Version                    : 0230
+Date/Time Original              : 2022:06:30 20:44:34
+Create Date                     : 2022:06:30 20:44:34
+Components Configuration        : Y, Cb, Cr, -
+Aperture Value                  : 1.0
+Max Aperture Value              : 1.0
+Subject Distance                : undef
+Flash                           : No Flash
+Focal Length                    : 9.1 mm
+Warning                         : [minor] Bad MakerNotes directory
+Flashpix Version                : 0100
+Color Space                     : sRGB
+Exif Image Width                : 640
+Exif Image Height               : 512
+Interoperability Index          : R98 - DCF basic file (sRGB)
+Interoperability Version        : 0100
+File Source                     : Digital Camera
+Scene Type                      : Directly photographed
+Custom Rendered                 : Normal
+Digital Zoom Ratio              : 1
+Focal Length In 35mm Format     : 40 mm
+Contrast                        : Normal
+Saturation                      : Normal
+Sharpness                       : Normal
+Device Setting Description      : (Binary data 4 bytes, use -b option to extract)
+Serial Number                   : 4X9SK2Q03AA0C5
+Lens Info                       : 9.1mm f/1
+GPS Version ID                  : 2.3.0.0
+GPS Latitude Ref                : North
+GPS Longitude Ref               : East
+GPS Altitude Ref                : Above Sea Level
+GPS Status                      : Measurement Active
+GPS Map Datum                   : WGS-84
+XP Comment                      : 0.9.142
+XP Keywords                     : single
+Compression                     : JPEG
+Thumbnail Offset                : 1174
+Thumbnail Length                : 19058
+About                           : DJI Meta Data
+Format                          : image/jpg
+Image Source                    : InfraredCamera
+Gps Status                      : Normal
+Altitude Type                   : GpsFusionAlt
+Absolute Altitude               : +107.801
+Relative Altitude               : +105.160
+Gimbal Roll Degree              : +0.00
+Gimbal Yaw Degree               : +0.00
+Gimbal Pitch Degree             : -6.30
+Flight Roll Degree              : -4.80
+Flight Yaw Degree               : +123.00
+Flight Pitch Degree             : -1.30
+Flight X Speed                  : 0.0
+Flight Y Speed                  : 0.0
+Flight Z Speed                  : 0.0
+Cam Reverse                     : 0
+Gimbal Reverse                  : 0
+Self Data                       : 
+Surveying Mode                  : 1
+Calibrated Focal Length         : 9100.000000
+Calibrated Optical Center X     : 0.000000
+Calibrated Optical Center Y     : 0.000000
+UTC At Exposure                 : 2022:06:10 02:47:15.709125
+Camera Serial Number            : 4X9SK2Q03AA0C5
+Drone Model                     : M3T
+Drone Serial Number             : 1581F5FJD22480010075
+LRF Status                      : Normal
+LRF Target Distance             : 0.000
+LRF Target Lon                  : 0.0000000
+LRF Target Lat                  : 0.0000000
+LRF Target Alt                  : 0.000
+LRF Target Abs Alt              : 0.000
+Version                         : 7.0
+Has Settings                    : False
+Has Crop                        : False
+Already Applied                 : False
+MPF Version                     : 0100
+Number Of Images                : 2
+MP Image Flags                  : Dependent child image
+MP Image Format                 : JPEG
+MP Image Type                   : Large Thumbnail (VGA equivalent)
+MP Image Length                 : 367513
+MP Image Start                  : 851968
+Dependent Image 1 Entry Number  : 0
+Dependent Image 2 Entry Number  : 0
+Image UID List                  : (Binary data 66 bytes, use -b option to extract)
+Total Frames                    : 1
+Thermal Data                    : (Binary data 655360 bytes, use -b option to extract)
+Thermal Calibration             : (Binary data 23818 bytes, use -b option to extract)
+JFIF Version                    : 1.02
+Image Width                     : 640
+Image Height                    : 512
+Encoding Process                : Baseline DCT, Huffman coding
+Bits Per Sample                 : 8
+Color Components                : 3
+Y Cb Cr Sub Sampling            : YCbCr4:2:0 (2 2)
+Aperture                        : 1.0
+Image Size                      : 640x512
+Megapixels                      : 0.328
+Scale Factor To 35 mm Equivalent: 4.4
+Thumbnail Image                 : (Binary data 19058 bytes, use -b option to extract)
+GPS Altitude                    : 107.8 m Above Sea Level
+GPS Latitude                    : 22 deg 44' 58.16" N
+GPS Longitude                   : 113 deg 36' 35.18" E
+Preview Image                   : (Binary data 367513 bytes, use -b option to extract)
+Circle Of Confusion             : 0.007 mm
+Field Of View                   : 48.5 deg
+Focal Length                    : 9.1 mm (35 mm equivalent: 40.0 mm)
+GPS Position                    : 22 deg 44' 58.16" N, 113 deg 36' 35.18" E
+Hyperfocal Distance             : 12.11 m

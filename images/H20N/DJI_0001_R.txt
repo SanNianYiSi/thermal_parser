@@ -1,0 +1,83 @@
+ExifTool Version Number         : 12.35
+File Name                       : DJI_0001_R.JPG
+Directory                       : ./images/H20N
+File Size                       : 870 KiB
+File Modification Date/Time     : 2022:09:29 04:47:04+08:00
+File Access Date/Time           : 2024:03:27 08:36:34+08:00
+File Creation Date/Time         : 2024:03:25 08:38:15+08:00
+File Permissions                : -rw-rw-rw-
+File Type                       : JPEG
+File Type Extension             : jpg
+MIME Type                       : image/jpeg
+Exif Byte Order                 : Little-endian (Intel, II)
+Image Description               : default
+Make                            : DJI
+Camera Model Name               : ZH20N
+Orientation                     : Horizontal (normal)
+X Resolution                    : 72
+Y Resolution                    : 72
+Resolution Unit                 : inches
+Software                        : 04.00.00.42
+Modify Date                     : 2022:02:15 16:16:09
+Y Cb Cr Positioning             : Centered
+F Number                        : 1.0
+Recommended Exposure Index      : 0
+Exif Version                    : 0230
+Date/Time Original              : 2022:02:15 16:16:09
+Create Date                     : 2022:02:15 16:16:09
+Components Configuration        : Y, Cb, Cr, -
+Aperture Value                  : 1.0
+Max Aperture Value              : 1.0
+Flash                           : No Flash
+Focal Length                    : 6.0 mm
+Warning                         : [minor] Bad MakerNotes directory
+Flashpix Version                : 0100
+Color Space                     : sRGB
+Exif Image Width                : 640
+Exif Image Height               : 512
+Interoperability Index          : R98 - DCF basic file (sRGB)
+Interoperability Version        : 0100
+File Source                     : Digital Camera
+Scene Type                      : Directly photographed
+Digital Zoom Ratio              : 1.79
+Focal Length In 35mm Format     : 29 mm
+Contrast                        : Normal
+Saturation                      : Normal
+Sharpness                       : Normal
+Device Setting Description      : (Binary data 4 bytes, use -b option to extract)
+Serial Number                   : 0
+Lens Info                       : 6mm f/0.01
+XP Comment                      : 0.9.142
+XP Keywords                     : single
+Compression                     : JPEG
+Thumbnail Offset                : 982
+Thumbnail Length                : 7854
+MPF Version                     : 0100
+Number Of Images                : 2
+MP Image Flags                  : Dependent child image
+MP Image Format                 : JPEG
+MP Image Type                   : Large Thumbnail (VGA equivalent)
+MP Image Length                 : 72919
+MP Image Start                  : 818412
+Dependent Image 1 Entry Number  : 0
+Dependent Image 2 Entry Number  : 0
+Image UID List                  : (Binary data 66 bytes, use -b option to extract)
+Total Frames                    : 1
+Thermal Data                    : (Binary data 655360 bytes, use -b option to extract)
+Thermal Calibration             : (Binary data 24586 bytes, use -b option to extract)
+Image Width                     : 640
+Image Height                    : 512
+Encoding Process                : Baseline DCT, Huffman coding
+Bits Per Sample                 : 8
+Color Components                : 3
+Y Cb Cr Sub Sampling            : YCbCr4:2:0 (2 2)
+Aperture                        : 1.0
+Image Size                      : 640x512
+Megapixels                      : 0.328
+Scale Factor To 35 mm Equivalent: 4.8
+Thumbnail Image                 : (Binary data 7854 bytes, use -b option to extract)
+Preview Image                   : (Binary data 72919 bytes, use -b option to extract)
+Circle Of Confusion             : 0.006 mm
+Field Of View                   : 63.7 deg
+Focal Length                    : 6.0 mm (35 mm equivalent: 29.0 mm)
+Hyperfocal Distance             : 5.79 m

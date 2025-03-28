@@ -43,16 +43,25 @@ def get_default_filepaths() -> List[str]:
     if system == "Windows":
         if architecture == "32bit":
             return [os.path.join(folder_plugin, v) for v in [
-                'dji_thermal_sdk_v1.4_20220929/windows/release_x86/libdirp.dll',
-                'dji_thermal_sdk_v1.4_20220929/windows/release_x86/libv_dirp.dll',
-                'dji_thermal_sdk_v1.4_20220929/windows/release_x86/libv_iirp.dll',
+                # 'dji_thermal_sdk_v1.4_20220929/windows/release_x86/libdirp.dll',
+                # 'dji_thermal_sdk_v1.4_20220929/windows/release_x86/libv_dirp.dll',
+                # 'dji_thermal_sdk_v1.4_20220929/windows/release_x86/libv_iirp.dll',
+
+                'dji_thermal_sdk_v1.7_20241205/windows/release_x86/libdirp.dll',
+                'dji_thermal_sdk_v1.7_20241205/windows/release_x86/libv_dirp.dll',
+                'dji_thermal_sdk_v1.7_20241205/windows/release_x86/libv_iirp.dll',
                 'exiftool-12.35.exe',
             ]]
         elif architecture == "64bit":
             return [os.path.join(folder_plugin, v) for v in [
-                'dji_thermal_sdk_v1.4_20220929/windows/release_x64/libdirp.dll',
-                'dji_thermal_sdk_v1.4_20220929/windows/release_x64/libv_dirp.dll',
-                'dji_thermal_sdk_v1.4_20220929/windows/release_x64/libv_iirp.dll',
+                # 'dji_thermal_sdk_v1.4_20220929/windows/release_x64/libdirp.dll',
+                # 'dji_thermal_sdk_v1.4_20220929/windows/release_x64/libv_dirp.dll',
+                # 'dji_thermal_sdk_v1.4_20220929/windows/release_x64/libv_iirp.dll',
+
+                'dji_thermal_sdk_v1.7_20241205/windows/release_x64/libdirp.dll',
+                'dji_thermal_sdk_v1.7_20241205/windows/release_x64/libv_dirp.dll',
+                'dji_thermal_sdk_v1.7_20241205/windows/release_x64/libv_iirp.dll',
+
                 'exiftool-12.35.exe',
             ]]
     elif system == "Linux":
@@ -408,7 +417,10 @@ class Thermal:
     DJI_M2EA = 'MAVIC2-ENTERPRISE-ADVANCED'
     DJI_H20N = 'ZH20N'
     DJI_M3T = 'M3T'
+    DJI_M3TD = 'M3TD'
     DJI_M30T = 'M30T'
+    DJI_H30T = 'H30T'
+    DJI_M4T = 'M4T'
 
     # dirp_ret_code_e
     DIRP_SUCCESS = 0  # 0: Success (no error)
@@ -461,6 +473,7 @@ class Thermal:
             Thermal.FLIR, Thermal.FLIR_DEFAULT, Thermal.FLIR_AX8,
             Thermal.DJI_M2EA,
             Thermal.DJI_H20N, Thermal.DJI_M3T, Thermal.DJI_M30T,
+            Thermal.DJI_M3TD, Thermal.DJI_H30T, Thermal.DJI_M4T,
         }
 
         (
@@ -600,7 +613,7 @@ class Thermal:
                 ('relative_humidity', 'Relative Humidity'),
             ]:
                 if key in meta_json:
-                    kwargs[name] = float(meta_json[key][:-2])
+                    kwargs[name] = float(meta_json[key].split()[0])
             return self.parse_flir(
                 filepath_image=filepath_image,
                 **kwargs,
@@ -612,11 +625,14 @@ class Thermal:
             Thermal.DJI_M2EA,
             Thermal.DJI_H20N,
             Thermal.DJI_M3T,
+            Thermal.DJI_M3TD,
             Thermal.DJI_M30T,
+            Thermal.DJI_H30T,
+            Thermal.DJI_M4T,
         }:
             for key in ['Image Height', 'Image Width']:
                 assert key in meta_json, 'The `{}` field is missing'.format(key)
-            kwargs = dict((name, float(meta_json[key])) for name, key in [
+            kwargs = dict((name, float(meta_json[key].split()[0])) for name, key in [
                 ('object_distance', 'Object Distance'),
                 ('relative_humidity', 'Relative Humidity'),
                 ('emissivity', 'Emissivity'),
@@ -632,7 +648,10 @@ class Thermal:
                 Thermal.DJI_M2EA,
                 Thermal.DJI_H20N,
                 Thermal.DJI_M3T,
+                Thermal.DJI_M3TD,
                 Thermal.DJI_M30T,
+                Thermal.DJI_H30T,
+                Thermal.DJI_M4T,
             ]:
                 kwargs['m2ea_mode'] = True,
             return self.parse_dirp2(

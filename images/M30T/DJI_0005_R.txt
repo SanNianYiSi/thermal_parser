@@ -1,0 +1,85 @@
+ExifTool Version Number         : 12.35
+File Name                       : DJI_0005_R.JPG
+Directory                       : ./images/M30T
+File Size                       : 1507 KiB
+File Modification Date/Time     : 2022:09:29 04:47:04+08:00
+File Access Date/Time           : 2024:03:25 08:55:03+08:00
+File Creation Date/Time         : 2024:03:25 08:38:15+08:00
+File Permissions                : -rw-rw-rw-
+File Type                       : JPEG
+File Type Extension             : jpg
+MIME Type                       : image/jpeg
+Exif Byte Order                 : Little-endian (Intel, II)
+Image Description               : WhiteHot
+Make                            : DJI
+Camera Model Name               : M30T
+Orientation                     : Horizontal (normal)
+X Resolution                    : 72
+Y Resolution                    : 72
+Resolution Unit                 : inches
+Software                        : 10.00.27.07
+Modify Date                     : 2022:01:21 16:40:47
+Y Cb Cr Positioning             : Centered
+F Number                        : 1.0
+Exif Version                    : 0230
+Date/Time Original              : 2022:01:21 16:40:47
+Create Date                     : 2022:01:21 16:40:47
+Components Configuration        : Y, Cb, Cr, -
+Aperture Value                  : 1.0
+Max Aperture Value              : 1.0
+Subject Distance                : undef
+Flash                           : No Flash
+Focal Length                    : 9.1 mm
+Warning                         : [minor] Bad MakerNotes directory
+Flashpix Version                : 0100
+Color Space                     : sRGB
+Exif Image Width                : 1280
+Exif Image Height               : 1024
+Interoperability Index          : R98 - DCF basic file (sRGB)
+Interoperability Version        : 0100
+File Source                     : Digital Camera
+Scene Type                      : Directly photographed
+Custom Rendered                 : Normal
+Digital Zoom Ratio              : 1
+Focal Length In 35mm Format     : 40 mm
+Contrast                        : Normal
+Saturation                      : Normal
+Sharpness                       : Normal
+Device Setting Description      : (Binary data 4 bytes, use -b option to extract)
+Serial Number                   : 0
+Lens Info                       : 9.1mm f/1
+XP Comment                      : 0.9.142
+XP Keywords                     : single
+Compression                     : JPEG
+Thumbnail Offset                : 960
+Thumbnail Length                : 16541
+MPF Version                     : 0100
+Number Of Images                : 2
+MP Image Flags                  : Dependent child image
+MP Image Format                 : JPEG
+MP Image Type                   : Large Thumbnail (VGA equivalent)
+MP Image Length                 : 328877
+MP Image Start                  : 1214778
+Dependent Image 1 Entry Number  : 0
+Dependent Image 2 Entry Number  : 0
+Image UID List                  : (Binary data 66 bytes, use -b option to extract)
+Total Frames                    : 1
+Thermal Data                    : (Binary data 655360 bytes, use -b option to extract)
+Thermal Calibration             : (Binary data 23818 bytes, use -b option to extract)
+JFIF Version                    : 1.02
+Image Width                     : 1280
+Image Height                    : 1024
+Encoding Process                : Baseline DCT, Huffman coding
+Bits Per Sample                 : 8
+Color Components                : 3
+Y Cb Cr Sub Sampling            : YCbCr4:2:0 (2 2)
+Aperture                        : 1.0
+Image Size                      : 1280x1024
+Megapixels                      : 1.3
+Scale Factor To 35 mm Equivalent: 4.4
+Thumbnail Image                 : (Binary data 16541 bytes, use -b option to extract)
+Preview Image                   : (Binary data 328877 bytes, use -b option to extract)
+Circle Of Confusion             : 0.007 mm
+Field Of View                   : 48.5 deg
+Focal Length                    : 9.1 mm (35 mm equivalent: 40.0 mm)
+Hyperfocal Distance             : 12.11 m

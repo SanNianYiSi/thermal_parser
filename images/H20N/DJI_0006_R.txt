@@ -1,0 +1,129 @@
+ExifTool Version Number         : 12.35
+File Name                       : DJI_0006_R.JPG
+Directory                       : ./images/H20N
+File Size                       : 885 KiB
+File Modification Date/Time     : 2022:09:29 04:47:04+08:00
+File Access Date/Time           : 2024:03:27 08:36:34+08:00
+File Creation Date/Time         : 2024:03:25 08:38:15+08:00
+File Permissions                : -rw-rw-rw-
+File Type                       : JPEG
+File Type Extension             : jpg
+MIME Type                       : image/jpeg
+Exif Byte Order                 : Little-endian (Intel, II)
+Image Description               : default
+Make                            : DJI
+Camera Model Name               : ZH20N
+Orientation                     : Horizontal (normal)
+X Resolution                    : 72
+Y Resolution                    : 72
+Resolution Unit                 : inches
+Software                        : 04.00.00.80
+Modify Date                     : 2022:03:24 17:37:59
+Y Cb Cr Positioning             : Centered
+F Number                        : 1.0
+Recommended Exposure Index      : 0
+Exif Version                    : 0230
+Date/Time Original              : 2022:03:24 17:37:59
+Create Date                     : 2022:03:24 17:37:59
+Components Configuration        : Y, Cb, Cr, -
+Aperture Value                  : 1.0
+Max Aperture Value              : 1.0
+Flash                           : No Flash
+Focal Length                    : 6.0 mm
+Warning                         : [minor] Bad MakerNotes directory
+Flashpix Version                : 0100
+Color Space                     : sRGB
+Exif Image Width                : 640
+Exif Image Height               : 512
+Interoperability Index          : R98 - DCF basic file (sRGB)
+Interoperability Version        : 0100
+File Source                     : Digital Camera
+Scene Type                      : Directly photographed
+Digital Zoom Ratio              : 8
+Focal Length In 35mm Format     : 29 mm
+Contrast                        : Normal
+Saturation                      : Normal
+Sharpness                       : Normal
+Device Setting Description      : (Binary data 4 bytes, use -b option to extract)
+Serial Number                   : 4WZAJCF02AA00Y
+Lens Info                       : 6mm f/0.01
+GPS Version ID                  : 2.3.0.0
+GPS Latitude Ref                : North
+GPS Longitude Ref               : East
+GPS Altitude Ref                : Above Sea Level
+GPS Status                      : Measurement Active
+GPS Map Datum                   : WGS-84
+XP Comment                      : 0.9.142
+XP Keywords                     : single
+Compression                     : JPEG
+Thumbnail Offset                : 1190
+Thumbnail Length                : 8592
+About                           : DJI Meta Data
+Format                          : image/jpg
+Image Source                    : InfraredCamera
+Gps Status                      : Normal
+Altitude Type                   : GpsFusionAlt
+Absolute Altitude               : +90.337
+Relative Altitude               : +42.602
+Gimbal Roll Degree              : +0.00
+Gimbal Yaw Degree               : -106.60
+Gimbal Pitch Degree             : -32.90
+Flight Roll Degree              : +1.80
+Flight Yaw Degree               : -86.00
+Flight Pitch Degree             : +2.20
+Flight X Speed                  : 0.0
+Flight Y Speed                  : 0.0
+Flight Z Speed                  : 0.0
+Cam Reverse                     : 0
+Gimbal Reverse                  : 0
+Self Data                       : 
+Surveying Mode                  : 0
+UTC At Exposure                 : 
+Shutter Type                    : Electronic
+Camera Serial Number            : 4WZAJCF02AA00Y
+Lens Serial Number              : 
+Drone Model                     : Matrice 300 RTK
+Drone Serial Number             : 1ZNBJC400C0029
+LRF Status                      : Normal
+LRF Target Distance             : 79.572
+LRF Target Lon                  : 114.0066452
+LRF Target Lat                  : 22.5960255
+LRF Target Alt                  : -0.735
+LRF Target Abs Alt              : 47.000
+Version                         : 7.0
+Has Settings                    : False
+Has Crop                        : False
+Already Applied                 : False
+MPF Version                     : 0100
+Number Of Images                : 2
+MP Image Flags                  : Dependent child image
+MP Image Format                 : JPEG
+MP Image Type                   : Large Thumbnail (VGA equivalent)
+MP Image Length                 : 71763
+MP Image Start                  : 834908
+Dependent Image 1 Entry Number  : 0
+Dependent Image 2 Entry Number  : 0
+Image UID List                  : (Binary data 66 bytes, use -b option to extract)
+Total Frames                    : 1
+Thermal Data                    : (Binary data 655360 bytes, use -b option to extract)
+Thermal Calibration             : (Binary data 24586 bytes, use -b option to extract)
+Image Width                     : 640
+Image Height                    : 512
+Encoding Process                : Baseline DCT, Huffman coding
+Bits Per Sample                 : 8
+Color Components                : 3
+Y Cb Cr Sub Sampling            : YCbCr4:2:0 (2 2)
+Aperture                        : 1.0
+Image Size                      : 640x512
+Megapixels                      : 0.328
+Scale Factor To 35 mm Equivalent: 4.8
+Thumbnail Image                 : (Binary data 8592 bytes, use -b option to extract)
+GPS Altitude                    : 90.3 m Above Sea Level
+GPS Latitude                    : 22 deg 35' 46.31" N
+GPS Longitude                   : 114 deg 0' 26.16" E
+Preview Image                   : (Binary data 71763 bytes, use -b option to extract)
+Circle Of Confusion             : 0.006 mm
+Field Of View                   : 63.7 deg
+Focal Length                    : 6.0 mm (35 mm equivalent: 29.0 mm)
+GPS Position                    : 22 deg 35' 46.31" N, 114 deg 0' 26.16" E
+Hyperfocal Distance             : 5.79 m

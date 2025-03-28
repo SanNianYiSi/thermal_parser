@@ -36,14 +36,17 @@ DJI R-JPEG Camera Model
 * DJI H20T
 * DJI XT2
 * DJI XTR
-* DJI XTS
+* DJI XTS / 禅思 Zenmuse XT S
 
 DJI R-JPEG Camera Model DTAT3.0
 
 * DJI M2EA / DJI MAVIC2-ENTERPRISE-ADVANCED / "御"2 行业进阶版
-* DJI H20N
-* DJI M3T / DJI MAVIC3
-* DJI M30T
+* DJI H20N / 禅思 H20N
+* DJI M3T / DJI MAVIC3 / DJI Mavic 3 行业系列
+* DJI M30T / 经纬 M30 系列
+* DJI M3TD / 大疆机场 2
+* DJI H30T / 禅思 H30 系列
+* DJI M4T / DJI Matrice 4 系列
 
 ## References
 
