@@ -1,2 +1,4 @@
 numpy
 Pillow
+boto3
+python-dotenv

@@ -15,6 +15,7 @@ copies or substantial portions of the Software.
 """
 
 import os
+import re
 import platform
 import subprocess
 import sys
@@ -39,52 +40,20 @@ DIRP_VERBOSE_LEVEL_NUM = 3  # 3: Total number
 def get_default_filepaths() -> List[str]:
     folder_plugin = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'plugins')
     system = platform.system()
-    architecture = platform.architecture()[0]
-    if system == "Windows":
-        if architecture == "32bit":
-            return [os.path.join(folder_plugin, v) for v in [
-                # 'dji_thermal_sdk_v1.4_20220929/windows/release_x86/libdirp.dll',
-                # 'dji_thermal_sdk_v1.4_20220929/windows/release_x86/libv_dirp.dll',
-                # 'dji_thermal_sdk_v1.4_20220929/windows/release_x86/libv_iirp.dll',
+    sdk = "dji_thermal_sdk_v1.5_20240507"
+    architecture = "x64" if platform.architecture()[0] == "64bit" else "x86"
+    extension = "so" if system == "Linux" else "dll"
+    exiftool = "exiftool" if system == "Linux" else f"{folder_plugin}/exiftool-12.35.exe"
+    files = [
+        f'{sdk}/{system.lower()}/release_{architecture}/libdirp.{extension}',
+        f'{sdk}/{system.lower()}/release_{architecture}/libv_dirp.{extension}',
+        f'{sdk}/{system.lower()}/release_{architecture}/libv_iirp.{extension}',
+    ]
+    if system not in ("Windows", "Linux") or architecture not in ("x64", "x86"):
+        raise NotImplementedError(f'currently not supported for running on this platform: {system} {architecture}')
 
-                'dji_thermal_sdk_v1.7_20241205/windows/release_x86/libdirp.dll',
-                'dji_thermal_sdk_v1.7_20241205/windows/release_x86/libv_dirp.dll',
-                'dji_thermal_sdk_v1.7_20241205/windows/release_x86/libv_iirp.dll',
-                'exiftool-12.35.exe',
-            ]]
-        elif architecture == "64bit":
-            return [os.path.join(folder_plugin, v) for v in [
-                # 'dji_thermal_sdk_v1.4_20220929/windows/release_x64/libdirp.dll',
-                # 'dji_thermal_sdk_v1.4_20220929/windows/release_x64/libv_dirp.dll',
-                # 'dji_thermal_sdk_v1.4_20220929/windows/release_x64/libv_iirp.dll',
+    return *[os.path.join(folder_plugin, v) for v in files], exiftool
 
-                'dji_thermal_sdk_v1.7_20241205/windows/release_x64/libdirp.dll',
-                'dji_thermal_sdk_v1.7_20241205/windows/release_x64/libv_dirp.dll',
-                'dji_thermal_sdk_v1.7_20241205/windows/release_x64/libv_iirp.dll',
-
-                'exiftool-12.35.exe',
-            ]]
-    elif system == "Linux":
-        if architecture == "32bit":
-            return [
-                *[os.path.join(folder_plugin, v) for v in [
-                    'dji_thermal_sdk_v1.4_20220929/windows/release_x86/libdirp.so',
-                    'dji_thermal_sdk_v1.4_20220929/windows/release_x86/libv_dirp.so',
-                    'dji_thermal_sdk_v1.4_20220929/windows/release_x86/libv_iirp.so',
-                ]],
-                'exiftool'
-            ]
-        elif architecture == "64bit":
-            return [
-                *[os.path.join(folder_plugin, v) for v in [
-                    'dji_thermal_sdk_v1.4_20220929/windows/release_x64/libdirp.so',
-                    'dji_thermal_sdk_v1.4_20220929/windows/release_x64/libv_dirp.so',
-                    'dji_thermal_sdk_v1.4_20220929/windows/release_x64/libv_iirp.so',
-                ]],
-                'exiftool'
-            ]
-
-    raise NotImplementedError(f'currently not supported for running on this platform {system}:{architecture}')
 
 
 class dirp_rjpeg_version_t(Structure):
@@ -150,7 +119,7 @@ CHUNK_NUM_BYTES_COUNT = 1
 CHUNK_TOT_BYTES_COUNT = 1
 CHUNK_PARTIAL_METADATA_LENGTH = CHUNK_APP1_BYTES_COUNT + CHUNK_LENGTH_BYTES_COUNT + CHUNK_MAGIC_BYTES_COUNT
 CHUNK_METADATA_LENGTH = (
-        CHUNK_PARTIAL_METADATA_LENGTH + CHUNK_SKIP_BYTES_COUNT + CHUNK_NUM_BYTES_COUNT + CHUNK_TOT_BYTES_COUNT
+    CHUNK_PARTIAL_METADATA_LENGTH + CHUNK_SKIP_BYTES_COUNT + CHUNK_NUM_BYTES_COUNT + CHUNK_TOT_BYTES_COUNT
 )
 
 
@@ -385,9 +354,7 @@ def parse_raw_data(stream: BinaryIO, metadata: Tuple[int, int, int, int]):
 
     # Check shape
     if thermal_np.shape != (height, width):
-        msg = 'Invalid FLIR: metadata\'s width and height don\'t match thermal data\'s actual width ' \
-              'and height ({} vs ({}, {})'
-        msg = msg.format(thermal_np.shape, height, width)
+        msg = f'Invalid FLIR: metadata\'s width and height don\'t match thermal data\'s actual width and height ({thermal_np.shape} vs ({height}, {width})'
         raise ValueError(msg)
 
     # FLIR PNG data is in the wrong byte order, fix that
@@ -572,15 +539,16 @@ class Thermal:
                 * unsupported camera type
         """
 
-        assert isinstance(filepath_image, str) and os.path.exists(filepath_image), 'Check if the file exists:{}.'.format(filepath_image)
+        assert isinstance(filepath_image, str) and os.path.exists(
+            filepath_image), f'Check if the file exists: {filepath_image}.'
         meta = subprocess.Popen([self._filepath_exiftool, filepath_image], stdout=subprocess.PIPE).communicate()[0]
         meta = meta.decode('utf8').replace('\r', '')
         meta_json = dict([
             (field.split(':')[0].strip(), field.split(':')[1].strip()) for field in meta.split('\n') if ':' in field
         ])
-        assert 'Camera Model Name' in meta_json, '{} `Camera Model Name` field is missing'.format(filepath_image)
+        assert 'Camera Model Name' in meta_json, f'{filepath_image} `Camera Model Name` field is missing'
         camera_model = meta_json['Camera Model Name']
-        assert camera_model in self._support_camera_model or Thermal.FLIR in camera_model, 'Unsupported camera type:{}'.format(camera_model)
+        assert camera_model in self._support_camera_model or Thermal.FLIR in camera_model, f'Unsupported camera type: {camera_model}'
         if camera_model in {
             Thermal.FLIR,
             Thermal.FLIR_DEFAULT,
@@ -613,7 +581,7 @@ class Thermal:
                 ('relative_humidity', 'Relative Humidity'),
             ]:
                 if key in meta_json:
-                    kwargs[name] = float(meta_json[key].split()[0])
+                    kwargs[name] = float(meta_json[key][:-2])
             return self.parse_flir(
                 filepath_image=filepath_image,
                 **kwargs,
@@ -631,12 +599,12 @@ class Thermal:
             Thermal.DJI_M4T,
         }:
             for key in ['Image Height', 'Image Width']:
-                assert key in meta_json, 'The `{}` field is missing'.format(key)
-            kwargs = dict((name, float(meta_json[key].split()[0])) for name, key in [
+                assert key in meta_json, f'The `{key}` field is missing'
+            kwargs = dict((name, float(re.findall(r'\d+\.\d+|\d+', meta_json[key])[0])) for name, key in [
                 ('object_distance', 'Object Distance'),
                 ('relative_humidity', 'Relative Humidity'),
                 ('emissivity', 'Emissivity'),
-                ('reflected_apparent_temperature', 'Reflection'),
+                ('reflected_apparent_temperature', 'Reflected Temperature'),
             ] if key in meta_json)
             # NOTE: the jpeg image of M30T has a fixed size of 640x512
             if camera_model != Thermal.DJI_M30T:
@@ -784,7 +752,7 @@ class Thermal:
         )
         val_to_log = planck_r1 / (planck_r2 * (raw_obj + planck_o)) + planck_f
         if any(val_to_log.ravel() < 0):
-            raise ValueError('Image seems to be corrupted:{}'.format(filepath_image))
+            raise ValueError(f'Image seems to be corrupted: {filepath_image}')
         # temperature from radiance
         temperature = planck_b / np.log(val_to_log) - ABSOLUTE_ZERO
         return np.array(temperature, self._dtype)
@@ -830,7 +798,7 @@ class Thermal:
         rjpeg_resolotion = dirp_resolotion_t()
 
         return_status = self._dirp_create_from_rjpeg(raw_c_uint8, raw_size, handle)
-        assert return_status == Thermal.DIRP_SUCCESS, 'dirp_create_from_rjpeg error {}:{}'.format(filepath_image, return_status)
+        assert return_status == Thermal.DIRP_SUCCESS, f'dirp_create_from_rjpeg error {filepath_image}:{return_status}'
         assert self._dirp_get_rjpeg_version(handle, rjpeg_version) == Thermal.DIRP_SUCCESS
         assert self._dirp_get_rjpeg_resolution(handle, rjpeg_resolotion) == Thermal.DIRP_SUCCESS
 
@@ -838,7 +806,8 @@ class Thermal:
             params = dirp_measurement_params_t()
             params_point = pointer(params)
             return_status = self._dirp_get_measurement_params(handle, params_point)
-            assert return_status == Thermal.DIRP_SUCCESS, 'dirp_get_measurement_params error {}:{}'.format(filepath_image, return_status)
+            assert return_status == Thermal.DIRP_SUCCESS, f'dirp_get_measurement_params error {
+                filepath_image}:{return_status}'
 
             if isinstance(object_distance, (float, int)):
                 params.distance = object_distance
@@ -850,7 +819,8 @@ class Thermal:
                 params.reflection = reflected_apparent_temperature
 
             return_status = self._dirp_set_measurement_params(handle, params)
-            assert return_status == Thermal.DIRP_SUCCESS, 'dirp_set_measurement_params error {}:{}'.format(filepath_image, return_status)
+            assert return_status == Thermal.DIRP_SUCCESS, f'dirp_set_measurement_params error {
+                filepath_image}:{return_status}'
 
         if self._dtype.__name__ == np.float32.__name__:
             data = np.zeros(image_width * image_height, dtype=np.float32)

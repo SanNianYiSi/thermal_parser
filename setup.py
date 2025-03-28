@@ -1,40 +1,36 @@
 import os
-from setuptools import *
+from setuptools import setup, find_packages
 
 
 def format_data_files():
     data_files = [
-        ('plugins', ['plugins\\exiftool-12.35.exe']),
+        ('plugins', [os.path.join('plugins', 'exiftool-12.35.exe')]),
     ]
-    # 遍历目录中的所有文件和子目录
-    for root, _, filenames in os.walk('plugins\\dji_thermal_sdk_v1.4_20220929'):
+    # Iterate through all files and subdirectories in a directory
+    for root, _, filenames in os.walk(os.path.join('plugins', 'dji_thermal_sdk_v1.5_20240507')):
         filepaths = []
         for filename in filenames:
-            # 检查文件扩展名是否为.txt
             if any(filename.endswith(v) for v in ['.dll', '.lib', '.so', '.ini', '.txt']):
-                # 构建txt文件的完整路径
                 filepaths.append(os.path.join(root, filename))
-        if len(filepaths) > 0:
+        if filepaths:
             data_files.append((root, filepaths))
     return data_files
 
 
 setup(
     name='thermal_parser',
-    version='20240327',
+    version='20240826',
     description='FLIR/DJI IR Camera Data Parser, Python Version',
     url='https://github.com/SanNianYiSi/thermal_parser',
     author='SanNianYiSi',
     author_email='CcoO296y@163.com',
     license='MIT Licence',
     packages=find_packages(),
-
     data_files=format_data_files(),
     install_requires=[
         'numpy',
         'Pillow',
     ],
-
     classifiers=[
         'Intended Audience :: Developers',
         'Operating System :: OS Independent',
@@ -51,6 +47,7 @@ setup(
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
         'Topic :: Software Development :: Libraries'
     ],
 )
