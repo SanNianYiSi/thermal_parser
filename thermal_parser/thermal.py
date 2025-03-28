@@ -40,7 +40,7 @@ DIRP_VERBOSE_LEVEL_NUM = 3  # 3: Total number
 def get_default_filepaths() -> List[str]:
     folder_plugin = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'plugins')
     system = platform.system()
-    sdk = "dji_thermal_sdk_v1.5_20240507"
+    sdk = "dji_thermal_sdk_v1.7_20241205"
     architecture = "x64" if platform.architecture()[0] == "64bit" else "x86"
     extension = "so" if system == "Linux" else "dll"
     exiftool = "exiftool" if system == "Linux" else f"{folder_plugin}/exiftool-12.35.exe"
@@ -52,8 +52,7 @@ def get_default_filepaths() -> List[str]:
     if system not in ("Windows", "Linux") or architecture not in ("x64", "x86"):
         raise NotImplementedError(f'currently not supported for running on this platform: {system} {architecture}')
 
-    return *[os.path.join(folder_plugin, v) for v in files], exiftool
-
+    return [*[os.path.join(folder_plugin, v) for v in files], exiftool]
 
 
 class dirp_rjpeg_version_t(Structure):
@@ -119,7 +118,7 @@ CHUNK_NUM_BYTES_COUNT = 1
 CHUNK_TOT_BYTES_COUNT = 1
 CHUNK_PARTIAL_METADATA_LENGTH = CHUNK_APP1_BYTES_COUNT + CHUNK_LENGTH_BYTES_COUNT + CHUNK_MAGIC_BYTES_COUNT
 CHUNK_METADATA_LENGTH = (
-    CHUNK_PARTIAL_METADATA_LENGTH + CHUNK_SKIP_BYTES_COUNT + CHUNK_NUM_BYTES_COUNT + CHUNK_TOT_BYTES_COUNT
+        CHUNK_PARTIAL_METADATA_LENGTH + CHUNK_SKIP_BYTES_COUNT + CHUNK_NUM_BYTES_COUNT + CHUNK_TOT_BYTES_COUNT
 )
 
 
@@ -539,8 +538,7 @@ class Thermal:
                 * unsupported camera type
         """
 
-        assert isinstance(filepath_image, str) and os.path.exists(
-            filepath_image), f'Check if the file exists: {filepath_image}.'
+        assert isinstance(filepath_image, str) and os.path.exists(filepath_image), f'Check if the file exists: {filepath_image}.'
         meta = subprocess.Popen([self._filepath_exiftool, filepath_image], stdout=subprocess.PIPE).communicate()[0]
         meta = meta.decode('utf8').replace('\r', '')
         meta_json = dict([
@@ -626,6 +624,7 @@ class Thermal:
                 filepath_image=filepath_image,
                 **kwargs,
             )
+        raise NotImplementedError
 
     def parse_flir(
             self,
@@ -806,8 +805,7 @@ class Thermal:
             params = dirp_measurement_params_t()
             params_point = pointer(params)
             return_status = self._dirp_get_measurement_params(handle, params_point)
-            assert return_status == Thermal.DIRP_SUCCESS, f'dirp_get_measurement_params error {
-                filepath_image}:{return_status}'
+            assert return_status == Thermal.DIRP_SUCCESS, f'dirp_get_measurement_params error {filepath_image}:{return_status}'
 
             if isinstance(object_distance, (float, int)):
                 params.distance = object_distance
@@ -819,8 +817,7 @@ class Thermal:
                 params.reflection = reflected_apparent_temperature
 
             return_status = self._dirp_set_measurement_params(handle, params)
-            assert return_status == Thermal.DIRP_SUCCESS, f'dirp_set_measurement_params error {
-                filepath_image}:{return_status}'
+            assert return_status == Thermal.DIRP_SUCCESS, f'dirp_set_measurement_params error {filepath_image}:{return_status}'
 
         if self._dtype.__name__ == np.float32.__name__:
             data = np.zeros(image_width * image_height, dtype=np.float32)
